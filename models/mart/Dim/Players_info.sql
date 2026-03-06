@@ -18,7 +18,7 @@ players_info as (
         Last_name,
         Birthdate,
         Age,
-        Heigth_cm,
+        Height_cm,
         Weight_kg,
         Position,
         School,
@@ -27,7 +27,14 @@ players_info as (
 
     from donnees_source
 
+),
+
+
+doublons as ( 
+    select * from players_info 
+    where player_id is not null 
+    qualify row_number() over ( partition by player_id order by player_id desc ) = 1
 )
 
-select *
-from players_info
+select * from doublons
+

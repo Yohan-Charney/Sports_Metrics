@@ -34,6 +34,12 @@ where PLAYER_ID is not null
     and BIRTHDATE is not null
     and AGE is not null
 
+),
+
+
+doublons as ( 
+    select * from nettoyage 
+    qualify row_number() over ( partition by player_id order by player_id desc ) = 1
 )
 
-select * from nettoyage
+select * from doublons
