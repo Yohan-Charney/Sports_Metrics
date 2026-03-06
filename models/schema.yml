@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: Sports_Metrics
+    database: project-a0475dd2-d0c1-4640-aea
+    schema: Sport_Metrics
+    tables:
+      - name: team_boxscores
+      - name: team_games_dataset
+      - name: team_players_personal_info
+      - name: team_players_stats
+      - name: team_training_sessions
