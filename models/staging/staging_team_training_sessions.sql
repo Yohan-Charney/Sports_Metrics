@@ -32,7 +32,7 @@ nettoyage as (
         date(safe_cast(Session_Date as timestamp)) as session_date,
         safe_cast(Duration_min as float64) as Duration_min,
 
-        coalesce(safe_cast(Heart_Rate as float64), 220 - pi.Age) as Heart_rate,
+        coalesce(safe_cast(Heart_Rate as float64), avg(Heart_Rate) over(partition by pi.Age, pi.position)) as Heart_rate,
         coalesce(safe_cast(Strength_Score as float64), avg(Strength_Score)over (partition by pi.Age, pi.position))as Strength_Score,
         coalesce(safe_cast(`Shooting_Accuracy_%` as float64), avg(`Shooting_Accuracy_%`) over(partition by pi.Age, pi.position)) as Shooting_Accuracy_pct,
         safe_cast(`Passing_Accuracy_%` as float64) as Passing_Accuracy_pct,

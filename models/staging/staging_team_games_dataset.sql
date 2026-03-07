@@ -21,14 +21,18 @@ game_data as (
 select
 																			
     s.Game_id as game_id,
-    Game_date as game_date,
+    coalesce( SAFE.PARSE_DATE('%b %d, %Y', replace(replace(replace(trim(GAME_DATE), 'oct.', 'Oct'),'nov.', 'Nov'),'déc.', 'Dec')),
+                  SAFE.PARSE_DATE('%b %d, %Y', replace(replace(replace(trim(GAME_DATE), 'janv.', 'Jan'),'févr.', 'Feb'),'avr.', 'Apr')),
+                  SAFE.PARSE_DATE('%b %d, %Y', replace(replace(replace(trim(GAME_DATE), 'mai', 'May'),'juin', 'Jun' ),'juil.', 'Jul')),
+                  SAFE.PARSE_DATE('%b %d, %Y', replace(replace(replace(trim(GAME_DATE), 'août', 'Aug'),'sept.', 'Sep'),'mars', 'Mar'))
+        ) as game_date,
     Matchup,
     WL as Win_Loss,
-    W as Win_Loss,
+    W as Win,
     L as Loss,
     W_PCT Win_pct,
     s.MIN as Total_minutes,
-    s.PTS as Total_points,
+    safe_cast(s.PTS as int64) as Total_points,
     s.FGM as Total_Field_goal_made,
     s.FGA as Total_Field_goal_attempt,
     s.FG_PCT,
@@ -42,11 +46,11 @@ select
     s.DREB as Total_Defensive_rebounds,
     s.REB as Total_Total_rebounds,
     s.AST as Total_Assists,
-    s.STL	as Total_Steals,
-    s.BLK	as Total_Blocks,
-    s.TOV	as Total_Turnover,
+    s.STL as Total_Steals,
+    s.BLK as Total_Blocks,
+    s.TOV as Total_Turnover,
     s.PF as Total_Player_fault,
-    d.PLUS_MINUS as Ecart
+    safe_cast(d.PLUS_MINUS as int64) as Ecart
     
 
 from sources s
