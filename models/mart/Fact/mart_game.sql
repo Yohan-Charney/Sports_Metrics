@@ -29,7 +29,7 @@ games as (
         cm.oppenent,
         stg.win_loss,
         stg.total_points,
-        stg.total_points + stg.ecart as Oppenent_points,
+        stg.total_points - stg.ecart as Oppenent_points,
         stg.Ecart,
         stg.total_minutes,
         stg.total_field_goal_made,
