@@ -3,6 +3,10 @@
 
 ) }}
 
+
+-- Objectif: voir la charge a l'entraînement avant le dernier match et 
+-- les performance du match qui suit cette entrainement
+
 with sts as (
     select *
     from {{ ref('staging_team_training_sessions') }}
@@ -152,8 +156,11 @@ select
     mp.fg3_pct,
     mp.Total_rebounds,
     mp.Assists,
+    mp.Steals,
+    mp.Blocks,
     mp.Turnover,
-    mp.Player_fault
+    mp.Player_fault,
+    mp.Plus_minus
 
 from sts 
 join fatigue_stats fs using (player_id, session_id, session_date)
