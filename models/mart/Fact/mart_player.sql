@@ -61,9 +61,11 @@ select
     tps.FG3_PCT,
     tps.FT_PCT,
     tps.Total_rebounds,
-    tps.Assists	Steals,
+    tps.Assists,
+    tps.Steals,
     tps.Blocks,
     tps.Turnover,
+    tps.Player_fault,
     tps.Plus_minus
 
 from tps

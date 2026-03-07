@@ -23,6 +23,11 @@ pi as (
     from {{ ref('Players_info') }}
 ),
 
+mp as (
+    select *
+    from {{ ref('mart_player') }}
+),
+
 tps as (
     select *
     from {{ ref('staging_team_players_stats') }}
@@ -36,42 +41,42 @@ fatigue_stats as (
         fi.session_date,
 
 -- accumulation fatigue sur 7 jour
-        avg(fatigue_index_score) over(
+        round(avg(fatigue_index_score) over(
             partition by fi.player_id
-            order by fi.session_date
-            range between interval 7 day preceding and current row
-        ) as fi_avg_7d,
+            order by unix_date(fi.session_date)
+            range between 7 preceding and current row
+        ),2) as fi_avg_7d,
 
         max(fatigue_index_score) over(
             partition by fi.player_id
-            order by fi.session_date
-            range between interval 7 day preceding and current row
+            order by unix_date(fi.session_date)
+            range between 7 preceding and current row
         ) as fi_max_7d,
 
         sum(sts.Duration_min) over(
             partition by fi.player_id
-            order by fi.session_date
-            range between interval 7 day preceding and current row
+            order by unix_date(fi.session_date)
+            range between 7 preceding and current row
         ) as training_duration_7d,
 
 -- accumulation fatigue sur 28 jour
 
-        avg(fatigue_index_score) over(
+        round(avg(fatigue_index_score) over(
             partition by fi.player_id
-            order by fi.session_date
-            range between interval 28 day preceding and current row
-        ) as fi_avg_28d,
+            order by unix_date(fi.session_date)
+            range between 28 preceding and current row
+        ),2) as fi_avg_28d,
 
         max(fatigue_index_score) over(
             partition by fi.player_id
-            order by fi.session_date
-            range between interval 28 day preceding and current row
+            order by unix_date(fi.session_date)
+            range between 28 preceding and current row
         ) as fi_max_28d,
 
         sum(sts.Duration_min) over(
             partition by fi.player_id
-            order by fi.session_date
-            range between interval 28 day preceding and current row
+            order by unix_date(fi.session_date)
+            range between 28 preceding and current row
         ) as training_duration_28d
 
     from fi
@@ -97,31 +102,30 @@ select
 
 from fatigue_stats
 
-),
-
+)
 
 select
     fi.player_id,
     fi.session_id,
     fi.session_date,
-    annee
-    mois
-    jour
 
-    player_name
+    mp.annee,
+    mp.mois,
+    mp.jour,
+    mp.player_name,
 
 -- charge dernier entrainement avant match 
-    fatigue_index_score as fi_last_training,
-    Recovery_score as rs_last_training,
-    recovery_needed_hours as recovery_needed_last_training,
-    fi_interpretation as fi_interpretation_last_training
+    fi.fatigue_index_score as fi_last_training,
+    fi.Recovery_score as rs_last_training,
+    fi.recovery_needed_hours as recovery_needed_last_training,
+    fi.fi_interpretation as fi_interpretation_last_training,
 
 -- Stats dernier entraînement
-    Focus_Level
-    Strength_Score
-    Shooting_Accuracy_pct
-    Passing_Accuracy_pct
-    Performance_Score
+    Focus_Level,
+    Strength_Score,
+    Shooting_Accuracy_pct,
+    Passing_Accuracy_pct,
+    Performance_Score,
     
 -- charge sur 7 avant le prochain match
     fs.fi_avg_7d,
@@ -134,26 +138,28 @@ select
     fs.training_duration_28d,
 
 -- interpretation
-    chi.training_load
+    chi.training_load,
 
 -- performance match suivant
-    Place
-    Oppenent
-    win_loss
-    Total_points
-    Oppenent_points
-    Ecart
-    Points
-    fg_pct
-    fg3_pct
-    Total_rebounds
-    Assists
-    Turnover
-    Player_fault
+    mp.Place,
+    mp.Oppenent,
+    mp.win_loss,
+    mp.Total_points,
+    mp.Oppenent_points,
+    mp.Ecart,
+    mp.Points,
+    mp.fg_pct,
+    mp.fg3_pct,
+    mp.Total_rebounds,
+    mp.Assists,
+    mp.Turnover,
+    mp.Player_fault
 
-from fi 
+from sts 
 join fatigue_stats fs using (player_id, session_id, session_date)
 join Ch_interpretation chi using (player_id, session_id, session_date)
+join fi using (player_id, session_id, session_date)
+join mp on mp.game_id = sts.Next_Match_ID and mp.player_id = sts.player_id
 
 
 
