@@ -66,6 +66,10 @@ select
     tps.Blocks,
     tps.Turnover,
     tps.Player_fault,
+    (Points + tps.Total_rebounds + tps.Assists + tps.Steals + tps.Blocks - tps.Turnover - tps.Player_fault)
+    as Performance_score_match,
+    round((Points + tps.Total_rebounds + tps.Assists + tps.Steals + tps.Blocks - tps.Turnover - tps.Player_fault)/minutes_played,2)
+    as Performance_score_match_min,
     tps.Plus_minus
 
 from tps

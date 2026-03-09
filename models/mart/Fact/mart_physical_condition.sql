@@ -124,6 +124,16 @@ select
     fi.recovery_needed_hours as recovery_needed_last_training,
     fi.fi_interpretation as fi_interpretation_last_training,
 
+-- Charge avant match
+    fi.Fi_before_match,
+    case
+            when fi.Fi_before_match <= 10 then 'complètement récupéré'
+            when fi.Fi_before_match <= 30 then 'légère fatigue avant match'
+            when fi.Fi_before_match <= 60 then 'fatigue modérée avant match'
+            when fi.Fi_before_match <= 80 then 'Fatigue élevée / Risque'
+            else 'Danger blessure / baisse performance'
+        end as Fi_interpretation_before_match,
+
 -- Stats dernier entraînement
     Focus_Level,
     Strength_Score,

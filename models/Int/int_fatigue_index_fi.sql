@@ -70,7 +70,7 @@ fatigue_index_fi as (
         f.player_id,
         f.Recovery_score,
         round(fatigue_index_score, 2) as fatigue_index_score,
-
+        
         case
             when fatigue_index_score <= 30 then 'Fraîcheur optimale'
             when fatigue_index_score <= 50 then 'Fatigue légère'
@@ -89,4 +89,18 @@ fatigue_index_fi as (
 
 )
 
-select * from fatigue_index_fi
+select 
+    f.Season,	
+    f.session_date,
+    f.session_id,
+    f.player_id,
+    f.Recovery_score,
+    f.fatigue_index_score,
+    f.Fi_interpretation,
+    f.Recovery_needed_hours,
+    round(( f.fatigue_index_score * f.recovery_needed_hours / (n.days_before_match * 24) ),2) as Fi_before_match
+    
+
+
+from fatigue_index_fi f
+join normalisation n using(player_id,session_id)
