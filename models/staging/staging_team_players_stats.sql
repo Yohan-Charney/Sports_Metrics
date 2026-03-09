@@ -53,11 +53,10 @@ nettoyage as (
 ),
 
 
-
 doublons as ( 
     select * from nettoyage 
     where player_id is not null 
-    qualify row_number() over ( partition by player_id order by player_id desc ) = 1
+    qualify row_number() over ( partition by player_id, game_id order by player_id desc ) = 1
 )
 
 select * from doublons
