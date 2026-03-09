@@ -1,3 +1,8 @@
+{{ config(
+    materialized='table',
+
+) }}
+
 with sts as (
   select *
   from {{ ref('staging_team_training_sessions') }}

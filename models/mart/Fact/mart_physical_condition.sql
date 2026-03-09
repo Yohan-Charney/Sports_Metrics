@@ -119,6 +119,7 @@ select
     mp.player_name,
 
 -- charge dernier entrainement avant match 
+    Load_Intensity_Score as last_Load_Intensity_Score,
     fi.fatigue_index_score as fi_last_training,
     fi.Recovery_score as rs_last_training,
     fi.recovery_needed_hours as recovery_needed_last_training,

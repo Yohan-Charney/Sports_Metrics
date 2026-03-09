@@ -41,7 +41,7 @@ select
 
     pi.player_name,
     pi.Age,
-    pi.Heigth_cm,
+    pi.Height_cm,
     pi.Weight_kg,
     pi.Position,
 
