@@ -20,6 +20,7 @@ normalisation as (
         sts.session_date,
         sts.session_id,
         sts.player_id,
+        sts.Next_Match_ID,
 
         Recovery_Time_hours,
         Days_Before_Match,
@@ -49,6 +50,7 @@ fatigue_calc as (
         session_date,
         session_id,
         player_id,
+        Next_Match_ID,
         Recovery_score,
 
         -- composantes FI
@@ -67,6 +69,7 @@ fatigue_index_fi as (
         f.Season,	
         f.session_date,
         f.session_id,
+        f.Next_Match_ID,
         f.player_id,
         f.Recovery_score,
         round(fatigue_index_score, 2) as fatigue_index_score,
@@ -94,6 +97,8 @@ select
     f.session_date,
     f.session_id,
     f.player_id,
+    n.Next_Match_ID,
+
     f.Recovery_score,
     f.fatigue_index_score,
     f.Fi_interpretation,

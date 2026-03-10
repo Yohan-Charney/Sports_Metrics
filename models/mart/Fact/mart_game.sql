@@ -10,10 +10,28 @@ with stg as (
 
 ),
 
+
+fi as (
+
+    select *
+    from {{ ref('int_fatigue_index_fi') }}
+
+),
+
 cm as (
 
     select *
     from {{ ref('Calendrier_matchs') }}
+
+),
+
+Fi_equipe as (
+    
+    select 
+        Next_Match_ID,
+        avg(Fi_before_match) as Fi_team
+    from fi
+    group by Next_Match_ID
 
 ),
 
@@ -27,6 +45,7 @@ games as (
         cm.annee,
         cm.place,
         cm.oppenent,
+        f.Fi_team as Fi_before_match_team,
         stg.win_loss,
         stg.total_points,
         stg.total_points - stg.ecart as Oppenent_points,
@@ -53,8 +72,8 @@ games as (
         stg.loss,
         stg.win_pct
     from stg
-    inner join cm
-        on stg.game_id = cm.game_id
+    inner join cm on stg.game_id = cm.game_id
+    join Fi_equipe f on f.Next_Match_ID = stg.game_id
 
     order by annee asc, mois asc, jour asc
 

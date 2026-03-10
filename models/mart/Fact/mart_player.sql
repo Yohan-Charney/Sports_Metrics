@@ -8,6 +8,11 @@ with stg as (
     from {{ ref('staging_team_games_dataset') }}
 ),
 
+sts as (
+    select *
+    from {{ ref('staging_team_training_sessions') }}
+),
+
 mg as (
     select *
     from {{ ref('mart_game') }}
@@ -45,7 +50,8 @@ select
     pi.Weight_kg,
     pi.Position,
 
-    
+    sts.Strength_Score as Strength_Score_last_training, 
+
     cm.Place,
     stg.win_loss,
     stg.Total_points,
@@ -77,6 +83,7 @@ join cm using (game_id)
 join pi using (player_id)
 join stg using (game_id)
 join mg using (game_id)
+join sts on tps.game_id = sts.Next_Match_ID
 
 )
 

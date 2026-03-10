@@ -112,6 +112,7 @@ select
     fi.player_id,
     fi.session_id,
     fi.session_date,
+    Next_Match_ID,
 
     mp.annee,
     mp.mois,
@@ -140,6 +141,8 @@ select
     Shooting_Accuracy_pct,
     Passing_Accuracy_pct,
     Performance_Score,
+    Load_Intensity_Score,
+    Injury_Risk,
     
 -- charge sur 7 avant le prochain match
     fs.fi_avg_7d,
@@ -158,9 +161,11 @@ select
     mp.Place,
     mp.Oppenent,
     mp.win_loss,
+    mp.Start_position,
     mp.Total_points,
     mp.Oppenent_points,
     mp.Ecart,
+    mp.minutes_played,
     mp.Points,
     mp.fg_pct,
     mp.fg3_pct,
@@ -170,6 +175,9 @@ select
     mp.Blocks,
     mp.Turnover,
     mp.Player_fault,
+    mp.Performance_score_match,
+    mp.Performance_score_match_min,
+
     mp.Plus_minus
 
 from sts 
