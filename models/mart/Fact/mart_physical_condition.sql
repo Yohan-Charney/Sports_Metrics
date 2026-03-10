@@ -37,12 +37,40 @@ tps as (
     from {{ ref('staging_team_players_stats') }}
 ),
 
+
+last_session as (
+
+select * from (
+
+    select
+        player_id,
+        session_id,
+        session_date,
+        Next_Match_ID as game_id,
+
+        row_number() over (
+            partition by player_id, Next_Match_ID
+            order by session_date desc
+        ) as row_n
+
+    from sts
+
+            )
+
+where row_n = 1
+
+),
+
+
+
 fatigue_stats as (
 
     select
         fi.player_id,
         fi.session_id,
+        ls.game_id,
         fi.session_date,
+
 
 -- accumulation fatigue sur 7 jour
         round(avg(fatigue_index_score) over(
@@ -63,6 +91,12 @@ fatigue_stats as (
             range between 7 preceding and current row
         ) as training_duration_7d,
 
+        sum(sts.Duration_min * sts.Load_Intensity_Score) over(
+            partition by fi.player_id
+            order by unix_date(fi.session_date)
+            range between 7 preceding and current row
+        ) as training_load_7d,
+
 -- accumulation fatigue sur 28 jour
 
         round(avg(fatigue_index_score) over(
@@ -81,26 +115,33 @@ fatigue_stats as (
             partition by fi.player_id
             order by unix_date(fi.session_date)
             range between 28 preceding and current row
-        ) as training_duration_28d
+        ) as training_duration_28d,
+
+        sum(sts.Duration_min * sts.Load_Intensity_Score) over(
+            partition by fi.player_id
+            order by unix_date(fi.session_date)
+            range between 28 preceding and current row
+        ) as training_load_28d
 
     from fi
     join sts using (session_id)
+    join last_session ls using (session_id)
 
 ),
 
 Ch_interpretation as (
 
 select 
-
+    training_load_7d,
+    training_load_28d,
     player_id,
     session_id,
-    session_date,
 
     case 
-         when training_duration_7d / (training_duration_28d / 4) < 0.8 then 'Sous-entraînement'
-         when training_duration_7d / (training_duration_28d / 4) < 1.3 then 'Charge normale'
-         when training_duration_7d / (training_duration_28d / 4) < 1.5 then 'Charge élevée'
-         when (training_duration_7d / (training_duration_28d / 4) > 1.5) or (fi_avg_7d > 70) then 'Surentraînement'
+         when training_load_7d / (training_load_28d / 4) < 0.8 then 'Sous-entraînement'
+         when training_load_7d / (training_load_28d / 4) < 1.3 then 'Charge normale'
+         when training_load_7d / (training_load_28d / 4) < 1.5 then 'Charge élevée'
+         when (training_load_7d / (training_load_28d / 4) > 1.5) or (fi_avg_7d > 70) then 'Surentraînement'
          else 'Manque de données'
     end as training_load
 
@@ -108,11 +149,14 @@ from fatigue_stats
 
 )
 
+
+
+-- assemblage as (
 select
+    mp.Season,
     fi.player_id,
     fi.session_id,
-    fi.session_date,
-    Next_Match_ID,
+    mp.game_id,
 
     mp.annee,
     mp.mois,
@@ -125,6 +169,7 @@ select
     fi.recovery_needed_hours as recovery_needed_last_training,
     fi.fi_interpretation as fi_interpretation_last_training,
 
+
 -- Charge avant match
     fi.Fi_before_match,
     case
@@ -136,13 +181,13 @@ select
         end as Fi_interpretation_before_match,
 
 -- Stats dernier entraînement
-    Focus_Level,
-    Strength_Score,
-    Shooting_Accuracy_pct,
-    Passing_Accuracy_pct,
-    Performance_Score,
-    Load_Intensity_Score,
-    Injury_Risk,
+    sts.Focus_Level,
+    sts.Strength_Score,
+    sts.Shooting_Accuracy_pct,
+    sts.Passing_Accuracy_pct,
+    sts.Performance_Score,
+    sts.Load_Intensity_Score,
+    sts.Injury_Risk,
     
 -- charge sur 7 avant le prochain match
     fs.fi_avg_7d,
@@ -155,6 +200,8 @@ select
     fs.training_duration_28d,
 
 -- interpretation
+    chi.training_load_7d,
+    chi.training_load_28d,
     chi.training_load,
 
 -- performance match suivant
@@ -180,11 +227,23 @@ select
 
     mp.Plus_minus
 
-from sts 
-join fatigue_stats fs using (player_id, session_id, session_date)
-join Ch_interpretation chi using (player_id, session_id, session_date)
-join fi using (player_id, session_id, session_date)
-join mp on mp.game_id = sts.Next_Match_ID and mp.player_id = sts.player_id
+from mp 
+join sts on mp.game_id = sts.Next_Match_ID and mp.player_id = sts.player_id
+join fatigue_stats fs on sts.player_id = fs.player_id and sts.session_id = fs.session_id and sts.session_date = fs.session_date
+join Ch_interpretation chi on sts.player_id = chi.player_id and sts.session_id = chi.session_id 
+join fi on sts.player_id = fi.player_id and sts.session_id = fi.session_id and sts.session_date = fi.session_date
+
+
+/*doublons as (select *
+            from (
+                select *, row_number() over (partition by a.player_id, a.game_id order by a.game_id
+            ) as row_n
+        from assemblage a
+    )
+    where row_n = 1
+)
+
+select * from doublons*/
 
 
 

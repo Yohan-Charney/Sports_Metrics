@@ -33,9 +33,20 @@ tps as (
     from {{ ref('staging_team_players_stats') }}
 ),
 
+last_training as (
+
+select *
+    from (select sts.*, row_number() over (partition by sts.player_id, sts.Next_Match_ID order by sts.session_date desc, sts.session_id desc
+            ) as row_n
+        from sts
+    )
+    where row_n = 1
+),
+
 player_perfomance as (
 
 select
+    lt.Season,
     tps.game_id,
     tps.player_id,
     cm.game_date,
@@ -50,8 +61,7 @@ select
     pi.Weight_kg,
     pi.Position,
 
-    sts.Strength_Score as Strength_Score_last_training, 
-
+    lt.Strength_Score as Strength_Score_last_training,
     cm.Place,
     stg.win_loss,
     stg.Total_points,
@@ -83,8 +93,7 @@ join cm using (game_id)
 join pi using (player_id)
 join stg using (game_id)
 join mg using (game_id)
-join sts on tps.game_id = sts.Next_Match_ID
-
+join last_training lt on tps.player_id = lt.player_id and tps.game_id = lt.Next_Match_ID
 )
 
 select * from player_perfomance

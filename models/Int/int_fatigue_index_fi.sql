@@ -69,7 +69,7 @@ fatigue_index_fi as (
         f.Season,	
         f.session_date,
         f.session_id,
-        f.Next_Match_ID,
+        f.Next_Match_ID ,
         f.player_id,
         f.Recovery_score,
         round(fatigue_index_score, 2) as fatigue_index_score,
@@ -103,7 +103,7 @@ select
     f.fatigue_index_score,
     f.Fi_interpretation,
     f.Recovery_needed_hours,
-    round(( f.fatigue_index_score * f.recovery_needed_hours / (n.days_before_match * 24) ),2) as Fi_before_match
+    round(least (100, ( f.fatigue_index_score * f.recovery_needed_hours / (n.days_before_match * 24) )),2) as Fi_before_match
     
 
 
