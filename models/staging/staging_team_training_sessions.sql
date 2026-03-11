@@ -23,7 +23,7 @@ pi as (
 nettoyage as (
 
     select
-        Season,
+
         Session_ID as session_id,
         safe_cast(d.Player_ID as int64) as player_id,
         safe_cast(Next_Match_ID as int64) as Next_Match_ID,
@@ -58,8 +58,15 @@ nettoyage as (
 )
 
 
-select *
-from nettoyage
+select 
+    case
+            when session_date <= date '2020-07-31'  then '2019-2020'
+            when session_date <= date '2021-07-31'  then '2020-2021'
+            when session_date <= date '2022-07-31'  then '2021-2022'
+            when session_date <= date '2023-07-31'  then '2022-2023'
+            else '2023-2024'
+            end as Season, n.*
+from nettoyage n
 
 
 

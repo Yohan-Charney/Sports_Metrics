@@ -28,16 +28,18 @@ cm as (
 Fi_equipe as (
     
     select 
+        Season,
         Next_Match_ID,
         avg(Fi_before_match) as Fi_team
     from fi
-    group by Next_Match_ID
+    group by Next_Match_ID,Season
 
 ),
 
 games as (
 
     select
+        cm.Season,
         stg.game_id,
         cm.game_date,
         cm.jour,
@@ -45,7 +47,7 @@ games as (
         cm.annee,
         cm.place,
         cm.oppenent,
-        f.Fi_team as Fi_before_match_team,
+        round(f.Fi_team,2) as Fi_before_match_team,
         stg.win_loss,
         stg.total_points,
         stg.total_points - stg.ecart as Oppenent_points,

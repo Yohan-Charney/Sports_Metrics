@@ -8,6 +8,11 @@ with sts as (
   from {{ ref('staging_team_training_sessions') }}
 ),
 
+tps as (
+    select *
+    from {{ ref('staging_team_players_stats') }}
+),
+
 spi as (
   select *
   from {{ ref('staging_team_players_personal_info') }}
@@ -21,6 +26,7 @@ normalisation as (
         sts.session_id,
         sts.player_id,
         sts.Next_Match_ID,
+        tps.minutes_played,
 
         Recovery_Time_hours,
         Days_Before_Match,
@@ -41,6 +47,8 @@ normalisation as (
     from sts
     join spi 
         on spi.player_id = sts.player_id
+    join tps on sts.player_id = tps.player_id
+    where tps.minutes_played >= 5
 ),
 
 fatigue_calc as (
@@ -69,7 +77,7 @@ fatigue_index_fi as (
         f.Season,	
         f.session_date,
         f.session_id,
-        f.Next_Match_ID ,
+        f.Next_Match_ID,
         f.player_id,
         f.Recovery_score,
         round(fatigue_index_score, 2) as fatigue_index_score,

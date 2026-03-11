@@ -38,7 +38,7 @@ tps as (
 ),
 
 
-last_session as (
+/*last_session as (
 
 select * from (
 
@@ -59,7 +59,7 @@ select * from (
 
 where row_n = 1
 
-),
+),*/
 
 
 
@@ -68,7 +68,7 @@ fatigue_stats as (
     select
         fi.player_id,
         fi.session_id,
-        ls.game_id,
+      --  ls.game_id,
         fi.session_date,
 
 
@@ -125,7 +125,7 @@ fatigue_stats as (
 
     from fi
     join sts using (session_id)
-    join last_session ls using (session_id)
+   -- join last_session ls using (session_id)
 
 ),
 
@@ -154,9 +154,10 @@ from fatigue_stats
 -- assemblage as (
 select
     mp.Season,
+    sts.session_date,
     fi.player_id,
     fi.session_id,
-    mp.game_id,
+    sts.Next_Match_ID,
 
     mp.annee,
     mp.mois,
@@ -227,8 +228,8 @@ select
 
     mp.Plus_minus
 
-from mp 
-join sts on mp.game_id = sts.Next_Match_ID and mp.player_id = sts.player_id
+from sts 
+join mp on mp.game_id = sts.Next_Match_ID and mp.player_id = sts.player_id
 join fatigue_stats fs on sts.player_id = fs.player_id and sts.session_id = fs.session_id and sts.session_date = fs.session_date
 join Ch_interpretation chi on sts.player_id = chi.player_id and sts.session_id = chi.session_id 
 join fi on sts.player_id = fi.player_id and sts.session_id = fi.session_id and sts.session_date = fi.session_date

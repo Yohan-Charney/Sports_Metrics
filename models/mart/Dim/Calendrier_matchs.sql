@@ -14,6 +14,13 @@ nettoyage as (
     select
         game_id,
         game_date,
+        case
+            when game_date <= date '2020-07-31'  then '2019-2020'
+            when game_date <= date '2021-07-31'  then '2020-2021'
+            when game_date <= date '2022-07-31'  then '2021-2022'
+            when game_date <= date '2023-07-31'  then '2022-2023'
+            else '2023-2024'
+        end as Season,
         extract(year from date(game_date)) as annee,
         extract(month from date(game_date)) as mois,
         extract(day from date(game_date)) as jour,

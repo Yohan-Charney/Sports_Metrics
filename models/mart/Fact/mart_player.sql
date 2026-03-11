@@ -46,7 +46,7 @@ select *
 player_perfomance as (
 
 select
-    lt.Season,
+    cm.Season,
     tps.game_id,
     tps.player_id,
     cm.game_date,
