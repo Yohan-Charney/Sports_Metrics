@@ -38,37 +38,11 @@ tps as (
 ),
 
 
-/*last_session as (
-
-select * from (
-
-    select
-        player_id,
-        session_id,
-        session_date,
-        Next_Match_ID as game_id,
-
-        row_number() over (
-            partition by player_id, Next_Match_ID
-            order by session_date desc
-        ) as row_n
-
-    from sts
-
-            )
-
-where row_n = 1
-
-),*/
-
-
-
 fatigue_stats as (
 
     select
         fi.player_id,
         fi.session_id,
-      --  ls.game_id,
         fi.session_date,
 
 
@@ -125,8 +99,6 @@ fatigue_stats as (
 
     from fi
     join sts using (session_id)
-   -- join last_session ls using (session_id)
-
 ),
 
 Ch_interpretation as (
@@ -138,10 +110,10 @@ select
     session_id,
 
     case 
-         when training_load_7d / (training_load_28d / 4) < 0.8 then 'Sous-entraînement'
-         when training_load_7d / (training_load_28d / 4) < 1.3 then 'Charge normale'
-         when training_load_7d / (training_load_28d / 4) < 1.5 then 'Charge élevée'
-         when (training_load_7d / (training_load_28d / 4) > 1.5) or (fi_avg_7d > 70) then 'Surentraînement'
+         when training_load_7d / (NULLIF(training_load_28d, 0) / 4) < 0.8 then 'Sous-entraînement'
+         when training_load_7d / (NULLIF(training_load_28d, 0) / 4) < 1.3 then 'Charge normale'
+         when training_load_7d / (NULLIF(training_load_28d, 0) / 4) < 1.5 then 'Charge élevée'
+         when (training_load_7d / (NULLIF(training_load_28d, 0) / 4) > 1.5) or (fi_avg_7d > 70) then 'Surentraînement'
          else 'Manque de données'
     end as training_load
 
@@ -205,8 +177,7 @@ select
     chi.training_load_28d,
     chi.training_load,
 
--- performance match suivant
-    mp.Place,
+-- Statistiques de performance réelles lors du match qui a suivi l'entrainement
     mp.Oppenent,
     mp.win_loss,
     mp.Start_position,

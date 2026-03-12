@@ -26,7 +26,8 @@ cm as (
 ),
 
 Fi_equipe as (
-    
+    -- Calcul de l'état de forme collectif :
+    -- On fait la moyenne du niveau de fatigue de tous les joueurs avant chaque match
     select 
         Season,
         Next_Match_ID,
@@ -37,7 +38,7 @@ Fi_equipe as (
 ),
 
 games as (
-
+-- Assemblage final : On croise le calendrier, les stats et la fatigue équipe
     select
         cm.Season,
         stg.game_id,
@@ -50,6 +51,7 @@ games as (
         round(f.Fi_team,2) as Fi_before_match_team,
         stg.win_loss,
         stg.total_points,
+        -- Calcul du score adverse basé sur l'écart final
         stg.total_points - stg.ecart as Oppenent_points,
         stg.Ecart,
         stg.total_minutes,
@@ -74,9 +76,11 @@ games as (
         stg.loss,
         stg.win_pct
     from stg
+    -- Jointure sur le calendrier pour avoir le contexte du match (adversaire, date)
     inner join cm on stg.game_id = cm.game_id
+    -- Jointure avec la fatigue collective calculée plus haut
     join Fi_equipe f on f.Next_Match_ID = stg.game_id
-
+-- Tri chronologique pour l'analyse de progression sur la saison
     order by annee asc, mois asc, jour asc
 
 )

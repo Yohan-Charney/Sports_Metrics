@@ -19,7 +19,7 @@ spi as (
 ),
 
 normalisation as (
-
+-- ÉTAPE 1 : Normalisation des données pour les rendre comparables (entre 0 et 1)
     select
         sts.Season,	
         sts.session_date,
@@ -39,9 +39,11 @@ normalisation as (
             else 3
         end
         ) / 3 as Fatigue_Level_norm,
-
+-- Score de récupération : Ratio temps disponible vs temps de repos nécessaire
         round((Days_Before_Match * 24)/Recovery_Time_hours,2) as Recovery_score,
         Load_Intensity_Score / 10 as Load_Intensity_norm,
+
+-- Volume d'entraînement hebdo normalisé par rapport au max de l'équipe
         Weekly_Training_Hours / ((max(Duration_min) over() /60) * 7) as Weekly_Training_norm
 
     from sts
@@ -52,7 +54,7 @@ normalisation as (
 ),
 
 fatigue_calc as (
-
+-- ÉTAPE 2 : Calcul du Fatigue Index (FI) avec pondération métier
     select
         Season,	
         session_date,
@@ -61,7 +63,11 @@ fatigue_calc as (
         Next_Match_ID,
         Recovery_score,
 
-        -- composantes FI
+
+        -- FORMULE SPORTMETRICS :
+        -- 30% Charge Interne (Physiologie)
+        -- 40% Charge Externe (Intensité de la séance)
+        -- 30% Récupération (Sommeil/Repos)
           (0.30 * (0.6 * HR_norm + 0.4 * Fatigue_Level_norm ) -- Charge inerne
         + 0.40 * ( 0.7 * Load_Intensity_norm + 0.3 * Weekly_Training_norm ) -- Charge externe
         + 0.30 * (1 - (least(1, Recovery_score)) -- recovery adj
@@ -72,7 +78,7 @@ fatigue_calc as (
 ),
 
 fatigue_index_fi as (
-
+-- ÉTAPE 3 : Interprétation et calcul du besoin de repos
     select
         f.Season,	
         f.session_date,
@@ -81,7 +87,7 @@ fatigue_index_fi as (
         f.player_id,
         f.Recovery_score,
         round(fatigue_index_score, 2) as fatigue_index_score,
-        
+    -- Traduction du score en conseils pour le staff médical
         case
             when fatigue_index_score <= 30 then 'Fraîcheur optimale'
             when fatigue_index_score <= 50 then 'Fatigue légère'
@@ -99,7 +105,7 @@ fatigue_index_fi as (
     join normalisation n using(player_id, session_id) 
 
 )
-
+-- ÉTAPE FINALE : Projection de la fatigue à l'instant T du match
 select 
     f.Season,	
     f.session_date,
@@ -111,6 +117,8 @@ select
     f.fatigue_index_score,
     f.Fi_interpretation,
     f.Recovery_needed_hours,
+
+    -- Fi_before_match : Estimation de la fatigue résiduelle juste avant le coup d'envoi
     round(least (100, ( f.fatigue_index_score * f.recovery_needed_hours / (n.days_before_match * 24) )),2) as Fi_before_match
     
 
