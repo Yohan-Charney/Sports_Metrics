@@ -49,8 +49,8 @@ normalisation as (
     from sts
     join spi 
         on spi.player_id = sts.player_id
-    join tps on sts.player_id = tps.player_id
-    where tps.minutes_played >= 5
+    join tps on sts.player_id = tps.player_id and sts.Next_Match_ID = tps.game_id -- On lie la session au match spécifique
+    where tps.minutes_played >= 5 -- j'enlève les joueurs du garbage time
 ),
 
 fatigue_calc as (

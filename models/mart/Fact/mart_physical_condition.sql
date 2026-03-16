@@ -178,8 +178,10 @@ select
     chi.training_load,
 
 -- Statistiques de performance réelles lors du match qui a suivi l'entrainement
+    mp.Place,
     mp.Oppenent,
     mp.win_loss,
+    mp.Position,
     mp.Start_position,
     mp.Total_points,
     mp.Oppenent_points,

@@ -47,7 +47,7 @@ nettoyage as (
         safe_cast(Days_Before_Match as int64) as Days_Before_Match
 
     from donnees_source d
-    join pi on pi.player_id = d.Player_ID
+    left join pi on pi.player_id = d.Player_ID -- au cas ou un joueur est dans training session mais pas encore dans player_info
     where d.Player_ID is not null
       and pi.Age is not null
       and Session_ID is not null

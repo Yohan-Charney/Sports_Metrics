@@ -10,3 +10,73 @@ sources:
       - name: team_players_personal_info
       - name: team_players_stats
       - name: team_training_sessions
+
+
+models:
+  # --- TABLE INTERMÉDIAIRE ---
+  - name: int_fatigue_index
+    description: "Calcul du Fatigue Index (FI). Normalisation des données et projection de la fatigue avant match."
+    columns:
+      - name: session_id
+        tests:
+          - unique
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
+      - name: fatigue_index_score
+        description: "Score de fatigue (0-100). Sécurisé contre les valeurs aberrantes."
+        tests:
+          - not_null
+          
+      - name: Fi_before_match
+        description: "Estimation de la fatigue résiduelle. Sécurisée contre la division par zéro."
+
+  # --- TABLES MARTS ---
+  - name: mart_game
+    description: "Données de match avec agrégation de la fatigue collective (Fi_team)."
+    columns:
+      - name: game_id
+        tests:
+          - unique
+          - not_null
+      - name: Fi_before_match_team
+        description: "Moyenne de fatigue de l'équipe. Ne peut pas être négative."
+
+  - name: mart_player
+    description: "Stats de performance individuelle corrélées au dernier entraînement (Force)."
+    columns:
+      - name: game_id
+        tests:
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
+      - name: minutes_played
+        description: minutes joués par match pour un joueur hors garbage time
+
+      - name: Performance_score_match_min
+        description: "Score d'efficience par minute. Protégé contre la division par zéro (minutes=0)."
+        tests:
+          - not_null
+
+  - name: mart_physical_condition
+    description: "Modèle final agrégeant les charges de travail (ACWR) sur 7 et 28 jours."
+    columns:
+      - name: session_id
+        tests:
+          - unique
+          - not_null
+      - name: player_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('Players_info')
+              field: player_id
+      - name: fi_avg_7d
+        description: "Moyenne mobile de fatigue sur 7 jours."
+      - name: training_load
+        description: "Classification de la charge basée sur le ratio ACWR."
+        tests:
+          - accepted_values:
+              values: ['Sous-entraînement', 'Charge normale', 'Charge élevée', 'Surentraînement', 'Manque de données']

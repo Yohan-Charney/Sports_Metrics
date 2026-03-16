@@ -73,6 +73,7 @@ select
     mg.Oppenent_points,
     mg.Ecart,
 
+    -- Joueur
     Start_position,
     minutes_played,
     round( minutes_played / 48 ,2) as minutes_ratio,
@@ -95,7 +96,7 @@ select
     as Performance_score_match,
 
     -- Score de performance ramené à la minute (très important pour comparer les remplaçants et les titulaires)
-    round((Points + tps.Total_rebounds + tps.Assists + tps.Steals + tps.Blocks - tps.Turnover - tps.Player_fault)/minutes_played,2)
+    round((Points + tps.Total_rebounds + tps.Assists + tps.Steals + tps.Blocks - tps.Turnover - tps.Player_fault)/NULLIF(minutes_played, 0),2) -- Sécurité pour le score par minute
     as Performance_score_match_min,
     tps.Plus_minus
 

@@ -20,8 +20,10 @@ nettoyage as (
             else trim(START_POSITION)
         end as Start_position,
 
-        round((safe_cast(split(MIN, ':')[safe_offset(0)] as float64) + safe_cast(split(MIN, ':')[safe_offset(1)] as float64) / 60),2)
-        as Minutes_played, -- conversion MIN (MM:SS) -> minutes décimales
+        case 
+            when MIN like '%:%' then round((safe_cast(split(MIN, ':')[safe_offset(0)] as float64) + safe_cast(split(MIN, ':')[safe_offset(1)] as float64) / 60),2)
+            else safe_cast(MIN as float64) -- au cas qlqun rentre des minutes sans secondes
+        end as Minutes_played, -- conversion MIN (MM:SS) -> minutes décimales
 
         safe_cast(PTS as int64) as Points,
         safe_cast(FGM as int64) as Field_goal_made,

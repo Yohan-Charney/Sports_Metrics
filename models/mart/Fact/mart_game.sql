@@ -85,4 +85,6 @@ games as (
 
 )
 
-select * from games
+select * 
+from games
+qualify row_number() over(partition by game_id order by game_date desc) = 1
