@@ -50,8 +50,16 @@ L'analyse passe du descriptif au prédictif via un **Notebook Jupyter** structur
 * **Objectif :** Pour la derniere saison, regrouper les joueurs selon leur impact réel sur le terrain plutôt que par leur poste officiel.
 * **Résultat :** Identification de 5 clusters distincts, des protecteurs du cerle à l'organisateur du jeu offensif
 
+  ![Architecture](Images/Recherche_cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+  ![Architecture](Images/Resultats%20recherche%20cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+  ![Architecture](Images/Cluster_sport_metrics_interpretation%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+
+
 ### 3. Focus Joueur : David Roussel
 * **Analyse :** Bien que classé statistiquement comme remplaçant ("Bench"), le modèle de clustering l'identifie comme un profil de "Star" (Cluster 3). Son impact collectif positif (`Plus_minus`) en fait le **6ème homme stratégique** à intégrer dans le 5 de départ lors des matchs serrés.
+
+  ![Architecture](Images/Top_joueurs_clusters%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+
 
 ---
 
