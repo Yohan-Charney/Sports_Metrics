@@ -70,12 +70,20 @@ Une solution de Business Intelligence interactive offrant une vision à 360 au S
 * **Alertes Risques :** Monitoring dynamique avec mise en forme conditionnelle (Vert/Orange/Rouge) pilotée par les prédictions du modèle ML.
 * **Efficience de Récupération :** Suivi du ratio entre le repos réel et le besoin physiologique de chaque joueur.
 
+  ![Architecture](Images/Load%20management.jpg)
+
 ### Page 2 : Statistiques & Stratégie
 * **Corrélation Performance/Fatigue :** Analyse visuelle de la chute de l'adresse lors des pics de fatigue.
 * **Facteurs de Victoire :** Comparaison des métriques clés (Turnovers, Steals, Rebounds) entre les matchs gagnés et perdus.
 
+  ![Architecture](Images/Performance%20team.jpg)
+
+
 ### Page 3 : Optimisation du Lineup
 * **Composition du 5 :** Suggestion de lineups basées sur la complémentarité des clusters de joueurs.
+
+  ![Architecture](Images/Lineup%20-%20Sport_Metrics%20-%20Power%20BI.png)
+
 
 ---
 
