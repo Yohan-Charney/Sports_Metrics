@@ -43,6 +43,9 @@ L'analyse passe du descriptif au prédictif via un **Notebook Jupyter** structur
 * **Résultat stratégique :** Adoption d'un **seuil de probabilité à 0.2**. Ce réglage privilégie le *Recall* (taux de détection) pour garantir la sécurité des athlètes.
 * **Directive Coach :** Dès que la probabilité dépasse **0.2**, une réduction automatique de **15% de l'intensité d'entraînement** est préconisée.
 
+   ![Architecture](Images/Recherche%20du%20seuil%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+   ![Architecture](Images/Resultats%20Seuil%20et%20precision%20Blessure%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+
 ### 2. Clustering des Profils (K-Means)
 * **Objectif :** Pour la derniere saison, regrouper les joueurs selon leur impact réel sur le terrain plutôt que par leur poste officiel.
 * **Résultat :** Identification de 5 clusters distincts, des protecteurs du cerle à l'organisateur du jeu offensif
