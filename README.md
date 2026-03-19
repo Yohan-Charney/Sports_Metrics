@@ -20,7 +20,7 @@ L'architecture a été conçue pour garantir une fraîcheur maximale des donnée
 * **Collecte (N8N) :** Nous utilisons **N8N** pour automatiser l'extraction des données depuis les API Google Sheets et assurer leur transfert vers notre Data Warehouse.
 * **Orchestration (Apache Airflow) :** Le workflow complet est piloté par **Airflow**. Chaque matin à 6h00, Airflow déclenche séquentiellement l'ingestion, les transformations dbt.
 
-  ![Architecture](Images/Architecture Sport Metrics.png)
+  ![Architecture](Images//Architecture%20Sport%20Metrics.png)
 
 
 ### 2. Stockage & Transformation (BigQuery & dbt)
