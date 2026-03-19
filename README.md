@@ -43,22 +43,22 @@ L'analyse passe du descriptif au prédictif via un **Notebook Jupyter** structur
 * **Résultat stratégique :** Adoption d'un **seuil de probabilité à 0.2**. Ce réglage privilégie le *Recall* (taux de détection) pour garantir la sécurité des athlètes.
 * **Directive Coach :** Dès que la probabilité dépasse **0.2**, une réduction automatique de **15% de l'intensité d'entraînement** est préconisée.
 
-   ![Architecture](Images/Recherche%20du%20seuil%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
-   ![Architecture](Images/Resultats%20Seuil%20et%20precision%20Blessure%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+   ![Metriques XGBoost](Images/Recherche%20du%20seuil%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+   ![Metriques XGBoost](Images/Resultats%20Seuil%20et%20precision%20Blessure%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
 
 ### 2. Clustering des Profils (K-Means)
 * **Objectif :** Pour la derniere saison, regrouper les joueurs selon leur impact réel sur le terrain plutôt que par leur poste officiel.
 * **Résultat :** Identification de 5 clusters distincts, des protecteurs du cerle à l'organisateur du jeu offensif
 
-  ![Architecture](Images/Recherche_cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
-  ![Architecture](Images/Resultats%20recherche%20cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
-  ![Architecture](Images/Cluster_sport_metrics_interpretation%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+  ![Courbe Elbow](Images/Recherche_cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+  ![Kmean](Images/Resultats%20recherche%20cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+  ![Kmean](Images/Cluster_sport_metrics_interpretation%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
 
 
 ### 3. Focus Joueur : David Roussel
 * **Analyse :** Bien que classé statistiquement comme remplaçant ("Bench"), le modèle de clustering l'identifie comme un profil de "Star" (Cluster 3). Son impact collectif positif (`Plus_minus`) en fait le **6ème homme stratégique** à intégrer dans le 5 de départ lors des matchs serrés.
 
-  ![Architecture](Images/Top_joueurs_clusters%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+  ![Kmean](Images/Top_joueurs_clusters%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
 
 
 ---
@@ -70,19 +70,19 @@ Une solution de Business Intelligence interactive offrant une vision à 360 au S
 * **Alertes Risques :** Monitoring dynamique avec mise en forme conditionnelle (Vert/Orange/Rouge) pilotée par les prédictions du modèle ML.
 * **Efficience de Récupération :** Suivi du ratio entre le repos réel et le besoin physiologique de chaque joueur.
 
-  ![Architecture](Images/Load%20management.jpg)
+  ![Power Bi](Images/Load%20management.jpg)
 
 ### Page 2 : Statistiques & Stratégie
 * **Corrélation Performance/Fatigue :** Analyse visuelle de la chute de l'adresse lors des pics de fatigue.
 * **Facteurs de Victoire :** Comparaison des métriques clés (Turnovers, Steals, Rebounds) entre les matchs gagnés et perdus.
 
-  ![Architecture](Images/Performance%20team.jpg)
+  ![Power Bi](Images/Performance%20team.jpg)
 
 
 ### Page 3 : Optimisation du Lineup
 * **Composition du 5 :** Suggestion de lineups basées sur la complémentarité des clusters de joueurs.
 
-  ![Architecture](Images/Lineup%20-%20Sport_Metrics%20-%20Power%20BI.png)
+  ![Power Bi](Images/Lineup%20-%20Sport_Metrics%20-%20Power%20BI.png)
 
 
 ---
