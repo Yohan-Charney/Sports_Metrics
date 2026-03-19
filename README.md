@@ -31,6 +31,9 @@ L'architecture a été conçue pour garantir une fraîcheur maximale des donnée
     * **Intermediate :** Calcul complexe de l'**Index de Fatigue (FI)** pondéré.
     * **Marts :** Modélisation en schéma en étoile optimisée pour les performances Power BI.
 * **Data Quality :** Tests dbt automatisés (Unicité, Not Null, Accepted Values) garantissant que les données du matin sont complètes avant d'atteindre le dashboard.
+
+  ![Graph DBT](Images/Graph_dbt_Sport_Metrics.png)
+
   
 ---
 
