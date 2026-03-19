@@ -122,8 +122,6 @@ from fatigue_stats
 )
 
 
-
--- assemblage as (
 select
     mp.Season,
     sts.session_date,
@@ -208,16 +206,6 @@ join Ch_interpretation chi on sts.player_id = chi.player_id and sts.session_id =
 join fi on sts.player_id = fi.player_id and sts.session_id = fi.session_id and sts.session_date = fi.session_date
 
 
-/*doublons as (select *
-            from (
-                select *, row_number() over (partition by a.player_id, a.game_id order by a.game_id
-            ) as row_n
-        from assemblage a
-    )
-    where row_n = 1
-)
-
-select * from doublons*/
 
 
 
