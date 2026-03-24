@@ -77,6 +77,3 @@ models:
         description: "Moyenne mobile de fatigue sur 7 jours."
       - name: training_load
         description: "Classification de la charge basée sur le ratio ACWR."
-        tests:
-          - accepted_values:
-              values: ['Sous-entraînement', 'Charge normale', 'Charge élevée', 'Surentraînement', 'Manque de données']

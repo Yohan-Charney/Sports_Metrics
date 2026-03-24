@@ -43,6 +43,8 @@ player_perfomance as (
 select
     tps.game_id,
     tps.player_id,
+    cm.Season,
+
     
 
     -- Données biométriques (pour répondre à la problématique Taille/Poids vs Rebonds)
@@ -55,6 +57,9 @@ select
     -- Score de force issu du dernier entraînement
     lt.Strength_Score as Strength_Score_last_training, 
 
+
+    -- Contexte du match et résultat collectif
+    cm.Place,
 
     -- Joueur
     Start_position,

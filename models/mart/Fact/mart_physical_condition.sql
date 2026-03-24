@@ -122,21 +122,18 @@ select
 -- charge sur 7 jours avant le prochain match (fatigue_stats)
     fs.fi_avg_7d,
     fs.fi_max_7d,
+    fs.training_load_7d,
 
 -- charge sur 28 jours avant le prochain match
     fs.fi_avg_28d,
     fs.fi_max_28d,
+    fs.training_load_28d,
 
 
 -- Statistiques de performance réelles lors du match qui a suivi l'entrainement
     mp.Place,
-    mp.Oppenent,
-    mp.win_loss,
     mp.Position,
     mp.Start_position,
-    mp.Total_points,
-    mp.Oppenent_points,
-    mp.Ecart,
     mp.minutes_played,
     mp.Points,
     mp.fg_pct,
