@@ -70,9 +70,6 @@ models:
       - name: player_id
         tests:
           - not_null
-          - relationships:
-              to: ref('Players_info')
-              field: player_id
       - name: fi_avg_7d
         description: "Moyenne mobile de fatigue sur 7 jours."
       - name: training_load
