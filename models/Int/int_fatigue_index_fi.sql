@@ -68,7 +68,7 @@ fatigue_calc as (
         -- 30% Charge Interne (Physiologie)
         -- 40% Charge Externe (Intensité de la séance)
         -- 30% Récupération (Sommeil/Repos)
-          (0.30 * (0.6 * HR_norm + 0.4 * Fatigue_Level_norm ) -- Charge inerne
+          (0.30 * (0.6 * HR_norm + 0.4 * Fatigue_Level_norm ) -- Charge interne
         + 0.40 * ( 0.7 * Load_Intensity_norm + 0.3 * Weekly_Training_norm ) -- Charge externe
         + 0.30 * (1 - (least(1, Recovery_score)) -- recovery adj
         ) )* 100 as fatigue_index_score

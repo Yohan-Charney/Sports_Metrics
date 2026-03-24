@@ -40,30 +40,25 @@ Fi_equipe as (
 games as (
 -- Assemblage final : On croise le calendrier, les stats et la fatigue équipe
     select
-        cm.Season,
-        stg.game_id,
-        cm.game_date,
-        cm.jour,
-        cm.mois,
-        cm.annee,
-        cm.place,
-        cm.oppenent,
-        round(f.Fi_team,2) as Fi_before_match_team,
+        stg.game_id, --
+
+        
+        round(f.Fi_team,2) as Fi_before_match_team,--
         stg.win_loss,
         stg.total_points,
         -- Calcul du score adverse basé sur l'écart final
-        stg.total_points - stg.ecart as Oppenent_points,
+
         stg.Ecart,
         stg.total_minutes,
         stg.total_field_goal_made,
         stg.total_field_goal_attempt,
-        stg.fg_pct,
+        stg.fg_pct, --
         stg.total_field_goal_3pts_made,
         stg.total_field_goal_3pts_attempt,
-        stg.fg3_pct,
+        stg.fg3_pct, -- 
         stg.total_free_throws_made,
         stg.total_free_throws_attempt,
-        stg.ft_pct,
+        stg.ft_pct, -- 
         stg.total_offensive_rebounds,
         stg.total_defensive_rebounds,
         stg.total_total_rebounds,
@@ -72,19 +67,17 @@ games as (
         stg.total_blocks,
         stg.total_turnover,
         stg.total_player_fault,
-        stg.win,
-        stg.loss,
-        stg.win_pct
+        stg.win, -- 
+        stg.loss, -- 
+        stg.win_pct -- 
     from stg
     -- Jointure sur le calendrier pour avoir le contexte du match (adversaire, date)
     inner join cm on stg.game_id = cm.game_id
     -- Jointure avec la fatigue collective calculée plus haut
     join Fi_equipe f on f.Next_Match_ID = stg.game_id
--- Tri chronologique pour l'analyse de progression sur la saison
-    order by annee asc, mois asc, jour asc
 
 )
 
 select * 
 from games
-qualify row_number() over(partition by game_id order by game_date desc) = 1
+qualify row_number() over(partition by game_id) = 1 -- Gestion des doublons sur game_id
