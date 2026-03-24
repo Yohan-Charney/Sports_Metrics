@@ -20,6 +20,9 @@ L'architecture a été conçue pour garantir une fraîcheur maximale des donnée
 * **Collecte (N8N) :** Nous utilisons **N8N** pour automatiser l'extraction des données depuis les API Google Sheets et assurer leur transfert vers notre Data Warehouse.
 * **Orchestration (Apache Airflow) :** Le workflow complet est piloté par **Airflow**. Chaque matin à 6h00, Airflow déclenche séquentiellement l'ingestion, les transformations dbt.
 
+  ![Architecture](Images/Architecture%20Sport%20Metrics.png)
+
+
 ### 2. Stockage & Transformation (BigQuery & dbt)
 
 * **Data Warehouse :** Stockage centralisé sur **Google BigQuery**.
@@ -28,6 +31,9 @@ L'architecture a été conçue pour garantir une fraîcheur maximale des donnée
     * **Intermediate :** Calcul complexe de l'**Index de Fatigue (FI)** pondéré.
     * **Marts :** Modélisation en schéma en étoile optimisée pour les performances Power BI.
 * **Data Quality :** Tests dbt automatisés (Unicité, Not Null, Accepted Values) garantissant que les données du matin sont complètes avant d'atteindre le dashboard.
+
+  ![Graph DBT](Images/Graph_dbt_Sport_Metrics.png)
+
   
 ---
 
@@ -40,12 +46,23 @@ L'analyse passe du descriptif au prédictif via un **Notebook Jupyter** structur
 * **Résultat stratégique :** Adoption d'un **seuil de probabilité à 0.2**. Ce réglage privilégie le *Recall* (taux de détection) pour garantir la sécurité des athlètes.
 * **Directive Coach :** Dès que la probabilité dépasse **0.2**, une réduction automatique de **15% de l'intensité d'entraînement** est préconisée.
 
+   ![Metriques XGBoost](Images/Recherche%20du%20seuil%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+   ![Metriques XGBoost](Images/Resultats%20Seuil%20et%20precision%20Blessure%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+
 ### 2. Clustering des Profils (K-Means)
 * **Objectif :** Pour la derniere saison, regrouper les joueurs selon leur impact réel sur le terrain plutôt que par leur poste officiel.
 * **Résultat :** Identification de 5 clusters distincts, des protecteurs du cerle à l'organisateur du jeu offensif
 
+  ![Courbe Elbow](Images/Recherche_cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+  ![Kmean](Images/Resultats%20recherche%20cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+  ![Kmean](Images/Cluster_sport_metrics_interpretation%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+
+
 ### 3. Focus Joueur : David Roussel
 * **Analyse :** Bien que classé statistiquement comme remplaçant ("Bench"), le modèle de clustering l'identifie comme un profil de "Star" (Cluster 3). Son impact collectif positif (`Plus_minus`) en fait le **6ème homme stratégique** à intégrer dans le 5 de départ lors des matchs serrés.
+
+  ![Kmean](Images/Top_joueurs_clusters%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+
 
 ---
 
@@ -56,12 +73,20 @@ Une solution de Business Intelligence interactive offrant une vision à 360 au S
 * **Alertes Risques :** Monitoring dynamique avec mise en forme conditionnelle (Vert/Orange/Rouge) pilotée par les prédictions du modèle ML.
 * **Efficience de Récupération :** Suivi du ratio entre le repos réel et le besoin physiologique de chaque joueur.
 
+  ![Power Bi](Images/Load%20management.jpg)
+
 ### Page 2 : Statistiques & Stratégie
 * **Corrélation Performance/Fatigue :** Analyse visuelle de la chute de l'adresse lors des pics de fatigue.
 * **Facteurs de Victoire :** Comparaison des métriques clés (Turnovers, Steals, Rebounds) entre les matchs gagnés et perdus.
 
+  ![Power Bi](Images/Performance%20team.jpg)
+
+
 ### Page 3 : Optimisation du Lineup
 * **Composition du 5 :** Suggestion de lineups basées sur la complémentarité des clusters de joueurs.
+
+  ![Power Bi](Images/Lineup%20-%20Sport_Metrics%20-%20Power%20BI.png)
+
 
 ---
 

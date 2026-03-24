@@ -156,4 +156,3 @@ from sts
 join mp on mp.game_id = sts.Next_Match_ID and mp.player_id = sts.player_id
 join fatigue_stats fs on sts.player_id = fs.player_id and sts.session_id = fs.session_id and sts.session_date = fs.session_date
 join fi on sts.player_id = fi.player_id and sts.session_id = fi.session_id and sts.session_date = fi.session_date
-
