@@ -2,7 +2,6 @@ version: 2
 
 sources:
   - name: Sports_Metrics
-    database: "{{ target.project }}"
     schema: Sport_Metrics
     tables:
       - name: team_boxscores
@@ -71,9 +70,9 @@ models:
         tests:
           - not_null
           - relationships:
-            arguments:
-              to: ref('Players_info')
-              field: player_id
+              arguments:
+                to: ref('Players_info')
+                field: player_id
       - name: fi_avg_7d
         description: "Moyenne mobile de fatigue sur 7 jours."
       - name: training_load
