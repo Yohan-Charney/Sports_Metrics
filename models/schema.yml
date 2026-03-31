@@ -2,7 +2,6 @@ version: 2
 
 sources:
   - name: Sports_Metrics
-    database:"{{ target.project }}"
     schema: Sport_Metrics
     tables:
       - name: team_boxscores
