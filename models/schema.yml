@@ -13,7 +13,7 @@ sources:
 
 models:
   # --- TABLE INTERMÉDIAIRE ---
-  - name: int_fatigue_index
+  - name: int_fatigue_index_fi
     description: "Calcul du Fatigue Index (FI). Normalisation des données et projection de la fatigue avant match."
     columns:
       - name: session_id
