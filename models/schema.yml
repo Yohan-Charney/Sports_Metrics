@@ -2,6 +2,7 @@ version: 2
 
 sources:
   - name: Sports_Metrics
+    database: project-a0475dd2-d0c1-4640-aea
     schema: Sport_Metrics
     tables:
       - name: team_boxscores
@@ -13,7 +14,7 @@ sources:
 
 models:
   # --- TABLE INTERMÉDIAIRE ---
-  - name: int_fatigue_index_fi
+  - name: int_fatigue_index
     description: "Calcul du Fatigue Index (FI). Normalisation des données et projection de la fatigue avant match."
     columns:
       - name: session_id
