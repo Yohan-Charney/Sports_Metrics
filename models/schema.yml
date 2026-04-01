@@ -70,3 +70,7 @@ models:
       - name: player_id
         tests:
           - not_null
+      - name: fi_avg_7d
+        description: "Moyenne mobile de fatigue sur 7 jours."
+      - name: training_load
+        description: "Classification de la charge basée sur le ratio ACWR."
