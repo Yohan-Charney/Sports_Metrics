@@ -75,7 +75,8 @@ Profil 2 Spécialistes du Banc : 6,26 pts / +/- de -4,37. Recrues en phase d'int
 Une solution de Business Intelligence interactive offrant une vision à 360 au Staff Technique.
 
 ### Page 1 : Load Management & Santé
-* **Alertes Risques :** Monitoring dynamique avec mise en forme conditionnelle (Vert/Orange/Rouge) pilotée par les prédictions du modèle ML.
+* **Alertes Risques :** Monitoring dynamique avec mise en forme conditionnelle pilotée par les prédictions du modèle ML : statut Repos (❌), Adapté (⚠️).
+* **Tableau individuel :** chaque joueur dispose d'un statut et d'un temps de récupération nécessaire exprimé en heures. 
 * **Efficience de Récupération :** Suivi du ratio entre le repos réel et le besoin physiologique de chaque joueur.
 
   ![Power Bi](Images/Load%20management.png)
