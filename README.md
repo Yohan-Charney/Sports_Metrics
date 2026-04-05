@@ -89,6 +89,7 @@ Une solution de Business Intelligence interactive offrant une vision à 360 au S
 
 ### Page 3 : Optimisation du Lineup
 * **Composition du 5 :** Suggestion de lineups basées sur la complémentarité des clusters de joueurs.
+* suggestions: Lucas Dubois intègre le cinq de départ et Vincent Beaumont en Pivot
 
   ![Power Bi](Images/Lineup%20-%20Sport_Metrics%20-%20Power%20BI.png)
 
