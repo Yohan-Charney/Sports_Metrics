@@ -78,7 +78,7 @@ Une solution de Business Intelligence interactive offrant une vision à 360 au S
 * **Alertes Risques :** Monitoring dynamique avec mise en forme conditionnelle (Vert/Orange/Rouge) pilotée par les prédictions du modèle ML.
 * **Efficience de Récupération :** Suivi du ratio entre le repos réel et le besoin physiologique de chaque joueur.
 
-  ![Power Bi](Images/Load%20management.jpg)
+  ![Power Bi](Images/Load%20management.png)
 
 ### Page 2 : Statistiques & Stratégie
 * **Corrélation Performance/Fatigue :** Analyse visuelle de la chute de l'adresse lors des pics de fatigue.
