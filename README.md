@@ -60,6 +60,7 @@ Profil 1 Pivot Dominant : 21 pts / 11,68 rebonds / 3,47 contres. Un seul joueur 
 Profil 2 Spécialistes du Banc : 6,26 pts / +/- de -4,37. Recrues en phase d'intégration.
 
   ![Courbe Elbow](Images/Recherche_cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+  ![Cluster](Images/Cluster_sport_metics%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
 
 
 ### 3. Focus Joueur : Lucas Dubois
