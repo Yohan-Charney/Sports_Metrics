@@ -18,7 +18,7 @@ L'architecture a été conçue pour garantir une fraîcheur maximale des donnée
 ### 1. Ingestion & Orchestration (N8N & Airflow)
 * **Sources de données :** Les données biométriques (IoT), les journaux d'entraînement et les statistiques de match sont collectés via des formulaires et centralisés dans des fichiers **Google Sheets**.
 * **Collecte (N8N) :** Nous utilisons **N8N** pour automatiser l'extraction des données depuis les API Google Sheets et assurer leur transfert vers notre Data Warehouse.
-* **Orchestration (Apache Airflow) :** Le workflow complet est piloté par **Airflow**. Chaque matin à 6h00, Airflow déclenche séquentiellement l'ingestion, les transformations dbt.
+* **Orchestration (Apache Airflow) :** Le workflow complet est piloté par **Airflow**. Chaque soir à 00h00, Airflow déclenche séquentiellement l'ingestion, les transformations dbt.
 
   ![Architecture](Images/Architecture%20Sport%20Metrics.png)
 
@@ -26,11 +26,12 @@ L'architecture a été conçue pour garantir une fraîcheur maximale des donnée
 ### 2. Stockage & Transformation (BigQuery & dbt)
 
 * **Data Warehouse :** Stockage centralisé sur **Google BigQuery**.
-* **Transformation dbt :**
-    * **Staging :** Nettoyage des données Sheets, typage strict et dédoublonnage.
-    * **Intermediate :** Calcul complexe de l'**Index de Fatigue (FI)** pondéré.
-    * **Marts :** Modélisation en schéma en étoile optimisée pour les performances Power BI.
-* **Data Quality :** Tests dbt automatisés (Unicité, Not Null, Accepted Values) garantissant que les données du matin sont complètes avant d'atteindre le dashboard.
+* **Transformation dbt : Architecture en Galaxie (Fact Constellation)**
+    * **Staging :** Nettoyage des données brutes, typage strict (safe_cast), dédoublonnage (qualify row_number()), conversion des minutes MM:SS en décimales, parsing des dates multilingues.
+    * **Intermediate :** Calcul de l'Index de Fatigue (FI) pondéré (charge interne 30%, charge externe 40%, récupération 30%). Filtre "Garbage Time" : exclusion des joueurs sous 5 minutes de jeu.
+    * **Marts : Modèle en Galaxie**
+    * Deux dimensions communes (Dim_Calendar_Match, Dim_Players_Info) alimentent trois tables de faits spécialisées : mart_game, mart_player, mart_physical_condition.
+* **Data Quality :** Tests dbt automatisés (Unicité, Not Null) garantissant que les données du matin sont complètes avant d'atteindre le dashboard.
 
   ![Graph DBT](Images/Graph_dbt_Sport_Metrics.png)
 
@@ -42,7 +43,7 @@ L'analyse passe du descriptif au prédictif via un **Notebook Jupyter** structur
 
 ### 1. Prédiction des Blessures (Modèle XGBoost)
 * **Objectif :** Anticiper les arrêts médicaux avant qu'ils ne surviennent.
-* **Méthodologie :** Utilisation d'un algorithme `XGBClassifier` avec ajustement du `scale_pos_weight` pour gérer le déséquilibre des classes (les blessures étant rares).
+* **Méthodologie :** Utilisation d'un algorithme `XGBClassifier` avec ajustement du `scale_pos_weight` pour gérer le déséquilibre des classes (les blessures étant rares).  Feature engineerée : ratio ACWR (fatigue 7j / fatigue 28j).
 * **Résultat stratégique :** Adoption d'un **seuil de probabilité à 0.2**. Ce réglage privilégie le *Recall* (taux de détection) pour garantir la sécurité des athlètes.
 * **Directive Coach :** Dès que la probabilité dépasse **0.2**, une réduction automatique de **15% de l'intensité d'entraînement** est préconisée.
 
@@ -50,16 +51,20 @@ L'analyse passe du descriptif au prédictif via un **Notebook Jupyter** structur
    ![Metriques XGBoost](Images/Resultats%20Seuil%20et%20precision%20Blessure%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
 
 ### 2. Clustering des Profils (K-Means)
-* **Objectif :** Pour la derniere saison, regrouper les joueurs selon leur impact réel sur le terrain plutôt que par leur poste officiel.
-* **Résultat :** Identification de 5 clusters distincts, des protecteurs du cerle à l'organisateur du jeu offensif
+* **Objectif :** Pour la derniere saison,  Segmenter les joueurs par impact réel plutôt que par poste officiel.
+* **Résultat :** K-Means avec k=3 déterminé par la méthode du coude, sur 8 variables de match normalisées (StandardScaler)
+* **3 profils identifiés :**
+
+Profil 0 Lieutenant All-Star : 14,49 pts / 4,38 passes. Créateurs de jeu à protéger.
+Profil 1 Pivot Dominant : 21 pts / 11,68 rebonds / 3,47 contres. Un seul joueur dans ce cluster.
+Profil 2 Spécialistes du Banc : 6,26 pts / +/- de -4,37. Recrues en phase d'intégration.
 
   ![Courbe Elbow](Images/Recherche_cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
-  ![Kmean](Images/Resultats%20recherche%20cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
-  ![Kmean](Images/Cluster_sport_metrics_interpretation%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
+  ![Cluster](Images/Cluster_sport_metics%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
 
 
-### 3. Focus Joueur : David Roussel
-* **Analyse :** Bien que classé statistiquement comme remplaçant ("Bench"), le modèle de clustering l'identifie comme un profil de "Star" (Cluster 3). Son impact collectif positif (`Plus_minus`) en fait le **6ème homme stratégique** à intégrer dans le 5 de départ lors des matchs serrés.
+### 3. Focus Joueur : Lucas Dubois
+* **Analyse :** Bien que classé statistiquement comme remplaçant ("Bench"), le modèle de clustering l'identifie comme un profil de "Star" (Cluster 0). Son impact collectif  en fait le **6ème homme stratégique** à intégrer dans le 5 de départ lors des matchs serrés.
 
   ![Kmean](Images/Top_joueurs_clusters%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
 
@@ -70,10 +75,11 @@ L'analyse passe du descriptif au prédictif via un **Notebook Jupyter** structur
 Une solution de Business Intelligence interactive offrant une vision à 360 au Staff Technique.
 
 ### Page 1 : Load Management & Santé
-* **Alertes Risques :** Monitoring dynamique avec mise en forme conditionnelle (Vert/Orange/Rouge) pilotée par les prédictions du modèle ML.
+* **Alertes Risques :** Monitoring dynamique avec mise en forme conditionnelle pilotée par les prédictions du modèle ML : statut Repos (❌), Adapté (⚠️).
+* **Tableau individuel :** chaque joueur dispose d'un statut et d'un temps de récupération nécessaire exprimé en heures. 
 * **Efficience de Récupération :** Suivi du ratio entre le repos réel et le besoin physiologique de chaque joueur.
 
-  ![Power Bi](Images/Load%20management.jpg)
+  ![Power Bi](Images/Load%20management.png)
 
 ### Page 2 : Statistiques & Stratégie
 * **Corrélation Performance/Fatigue :** Analyse visuelle de la chute de l'adresse lors des pics de fatigue.
@@ -84,6 +90,7 @@ Une solution de Business Intelligence interactive offrant une vision à 360 au S
 
 ### Page 3 : Optimisation du Lineup
 * **Composition du 5 :** Suggestion de lineups basées sur la complémentarité des clusters de joueurs.
+* suggestions: Lucas Dubois intègre le cinq de départ et Vincent Beaumont en Pivot
 
   ![Power Bi](Images/Lineup%20-%20Sport_Metrics%20-%20Power%20BI.png)
 
@@ -92,7 +99,7 @@ Une solution de Business Intelligence interactive offrant une vision à 360 au S
 
 ## ⚙️ Gestion de Projet Agile
 Le projet a été piloté via une méthodologie **Agile/Kanban** sur **Trello** :
-* **Workflow :** Backlog → To Do → In Progress → QA Testing (dbt tests) → Done.
+* **Workflow :** Backlog → A faire → En cours → A valider → Terminé.
 * **Collaboration :** Simulation des interactions entre les besoins du staff médical, les contraintes du coach et les livrables Data.
 
 ---
