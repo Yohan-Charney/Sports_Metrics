@@ -17,25 +17,14 @@ fi as (
     from {{ ref('int_fatigue_index_fi') }}
 ),
 
-cm as (
-    select *
-    from {{ ref('Calendrier_matchs') }}
-),
 
-pi as (
-    select *
-    from {{ ref('Players_info') }}
-),
+
 
 mp as (
     select *
     from {{ ref('mart_player') }}
 ),
 
-tps as (
-    select *
-    from {{ ref('staging_team_players_stats') }}
-),
 
 
 fatigue_stats as (
