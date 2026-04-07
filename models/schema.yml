@@ -61,7 +61,7 @@ models:
           - not_null
 
   - name: mart_physical_condition
-    description: "Modèle final agrégeant les charges de travail (ACWR) sur 7 et 28 jours."
+    description: "Modèle final agrégeant les charges de travail (ACWR) sur 7 et 28 jours. Elle joint les performances à l'entraînement avec les conditions physiques et celles du match suivant"
     columns:
       - name: session_id
         tests:
@@ -73,4 +73,4 @@ models:
       - name: fi_avg_7d
         description: "Moyenne mobile de fatigue sur 7 jours."
       - name: training_load
-        description: "Classification de la charge basée sur le ratio ACWR."
+        description: "Intensité des entraînements sur 7 jours."
