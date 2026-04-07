@@ -17,25 +17,14 @@ fi as (
     from {{ ref('int_fatigue_index_fi') }}
 ),
 
-cm as (
-    select *
-    from {{ ref('Calendrier_matchs') }}
-),
 
-pi as (
-    select *
-    from {{ ref('Players_info') }}
-),
+
 
 mp as (
     select *
     from {{ ref('mart_player') }}
 ),
 
-tps as (
-    select *
-    from {{ ref('staging_team_players_stats') }}
-),
 
 
 fatigue_stats as (
@@ -59,11 +48,6 @@ fatigue_stats as (
             range between 7 preceding and current row
         ) as fi_max_7d,
 
-        sum(sts.Duration_min) over(
-            partition by fi.player_id
-            order by unix_date(fi.session_date)
-            range between 7 preceding and current row
-        ) as training_duration_7d,
 
         sum(sts.Duration_min * sts.Load_Intensity_Score) over(
             partition by fi.player_id
@@ -85,11 +69,6 @@ fatigue_stats as (
             range between 28 preceding and current row
         ) as fi_max_28d,
 
-        sum(sts.Duration_min) over(
-            partition by fi.player_id
-            order by unix_date(fi.session_date)
-            range between 28 preceding and current row
-        ) as training_duration_28d,
 
         sum(sts.Duration_min * sts.Load_Intensity_Score) over(
             partition by fi.player_id
@@ -99,58 +78,27 @@ fatigue_stats as (
 
     from fi
     join sts using (session_id)
-),
-
-Ch_interpretation as (
-
-select 
-    training_load_7d,
-    training_load_28d,
-    player_id,
-    session_id,
-
-    case 
-         when training_load_7d / (NULLIF(training_load_28d, 0) / 4) < 0.8 then 'Sous-entraînement'
-         when training_load_7d / (NULLIF(training_load_28d, 0) / 4) < 1.3 then 'Charge normale'
-         when training_load_7d / (NULLIF(training_load_28d, 0) / 4) < 1.5 then 'Charge élevée'
-         when (training_load_7d / (NULLIF(training_load_28d, 0) / 4) > 1.5) or (fi_avg_7d > 70) then 'Surentraînement'
-         else 'Manque de données'
-    end as training_load
-
-from fatigue_stats
-
 )
+
 
 
 select
     mp.Season,
-    sts.session_date,
     fi.player_id,
     fi.session_id,
     sts.Next_Match_ID,
 
-    mp.annee,
-    mp.mois,
-    mp.jour,
+   
     mp.player_name,
 
 -- charge dernier entrainement avant match 
     fi.fatigue_index_score as fi_last_training,
     fi.Recovery_score as rs_last_training,
     fi.recovery_needed_hours as recovery_needed_last_training,
-    fi.fi_interpretation as fi_interpretation_last_training,
-
 
 -- Charge avant match
     fi.Fi_before_match,
-    case
-            when fi.Fi_before_match <= 10 then 'complètement récupéré'
-            when fi.Fi_before_match <= 30 then 'légère fatigue avant match'
-            when fi.Fi_before_match <= 60 then 'fatigue modérée avant match'
-            when fi.Fi_before_match <= 80 then 'Fatigue élevée / Risque'
-            else 'Danger blessure / baisse performance'
-        end as Fi_interpretation_before_match,
-
+    
 -- Stats dernier entraînement
     sts.Focus_Level,
     sts.Strength_Score,
@@ -160,30 +108,21 @@ select
     sts.Load_Intensity_Score,
     sts.Injury_Risk,
     
--- charge sur 7 avant le prochain match
+-- charge sur 7 jours avant le prochain match (fatigue_stats)
     fs.fi_avg_7d,
     fs.fi_max_7d,
-    fs.training_duration_7d,
+    fs.training_load_7d,
 
 -- charge sur 28 jours avant le prochain match
     fs.fi_avg_28d,
     fs.fi_max_28d,
-    fs.training_duration_28d,
+    fs.training_load_28d,
 
--- interpretation
-    chi.training_load_7d,
-    chi.training_load_28d,
-    chi.training_load,
 
 -- Statistiques de performance réelles lors du match qui a suivi l'entrainement
     mp.Place,
-    mp.Oppenent,
-    mp.win_loss,
     mp.Position,
     mp.Start_position,
-    mp.Total_points,
-    mp.Oppenent_points,
-    mp.Ecart,
     mp.minutes_played,
     mp.Points,
     mp.fg_pct,
@@ -202,11 +141,4 @@ select
 from sts 
 join mp on mp.game_id = sts.Next_Match_ID and mp.player_id = sts.player_id
 join fatigue_stats fs on sts.player_id = fs.player_id and sts.session_id = fs.session_id and sts.session_date = fs.session_date
-join Ch_interpretation chi on sts.player_id = chi.player_id and sts.session_id = chi.session_id 
 join fi on sts.player_id = fi.player_id and sts.session_id = fi.session_id and sts.session_date = fi.session_date
-
-
-
-
-
-
