@@ -1,0 +1,76 @@
+services:
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+
+  airflow-init:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    command: db init
+
+  airflow-webserver:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    env_file: .env
+    volumes:
+      - ./Dags:/opt/airflow/dags
+    ports:
+      - "8080:8080"
+    command: webserver
+
+  airflow-scheduler:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    env_file: .env
+    volumes:
+      - ./Dags:/opt/airflow/dags
+    command: scheduler
+       
+  n8n:
+    image: n8nio/n8n
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=admin
+  
+
+  dbt:
+    image: ghcr.io/dbt-labs/dbt-bigquery:1.8.0
+    volumes:
+      - .:/usr/app
+      - ./credentials/gcp_keyfile.json:/root/.google/credentials/gcp_keyfile.json
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/root/.google/credentials/gcp_keyfile.json
+    working_dir: /usr/app
+    command: run
+    profiles:
+      - dbt
+  
+volumes:
+  postgres_data:
+  n8n_data:
