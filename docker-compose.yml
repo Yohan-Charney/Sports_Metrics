@@ -29,6 +29,10 @@ services:
       airflow-init:
         condition: service_completed_successfully
     env_file: .env
+    environment:
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - GCP_DATASET_ID=${GCP_DATASET_ID}
+      - SPORTS_METRICS_PATH=${SPORTS_METRICS_PATH}
     volumes:
       - ./Dags:/opt/airflow/dags
     ports:
@@ -43,6 +47,10 @@ services:
       airflow-init:
         condition: service_completed_successfully
     env_file: .env
+    environment:
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - GCP_DATASET_ID=${GCP_DATASET_ID}
+      - SPORTS_METRICS_PATH=${SPORTS_METRICS_PATH}
     volumes:
       - ./Dags:/opt/airflow/dags
     command: scheduler
@@ -70,6 +78,32 @@ services:
     command: run
     profiles:
       - dbt
+
+  jupyter:
+    image: jupyter/scipy-notebook:latest
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./analyses:/home/jovyan/work
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    command: start-notebook.sh --NotebookApp.token='' --NotebookApp.password=''
+
+
+  ml-runner:
+    image: python:3.11-slim
+    volumes:
+      - ./ml:/app
+      - ./credentials/gcp_keyfile.json:/root/.google/credentials/gcp_keyfile.json
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/root/.google/credentials/gcp_keyfile.json
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - GCP_DATASET_ID=${GCP_DATASET_ID}
+    working_dir: /app
+    profiles:
+      - ml
+    command: echo "ML runner ready"
+
   
 volumes:
   postgres_data:

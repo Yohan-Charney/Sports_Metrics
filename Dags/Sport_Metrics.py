@@ -81,5 +81,59 @@ with DAG(
         network_mode="bridge",
     )
 
+    ml_injury = DockerOperator(
+        task_id="ml_injury_prevention",
+        image="python:3.11-slim",
+        command="bash -c 'pip install google-cloud-bigquery pandas xgboost scikit-learn db-dtypes -q && python prevention_blessure.py'",
+        working_dir="/app",
+        mounts=[
+            Mount(
+                source=os.environ['SPORTS_METRICS_PATH'] + "/ml",
+                target="/app",
+                type="bind"
+            ),
+            Mount(
+                source=os.environ['SPORTS_METRICS_PATH'] + "/credentials/gcp_keyfile.json",
+                target="/root/.google/credentials/gcp_keyfile.json",
+                type="bind"
+            ),
+        ],
+        environment={
+            "GOOGLE_APPLICATION_CREDENTIALS": "/root/.google/credentials/gcp_keyfile.json",
+            "GCP_PROJECT_ID": os.environ['GCP_PROJECT_ID'],
+            "GCP_DATASET_ID": os.environ['GCP_DATASET_ID'],
+        },
+        docker_url="tcp://host.docker.internal:2375",
+        auto_remove="success",
+        network_mode="bridge",
+    )
 
-    execute_n8n_workflow >> dbt_run
+    ml_clustering = DockerOperator(
+        task_id="ml_player_clustering",
+        image="python:3.11-slim",
+        command="bash -c 'pip install google-cloud-bigquery pandas scikit-learn db-dtypes -q && python prevision_equipe.py'",
+        working_dir="/app",
+        mounts=[
+            Mount(
+                source=os.environ['SPORTS_METRICS_PATH'] + "/ml",
+                target="/app",
+                type="bind"
+            ),
+            Mount(
+                source=os.environ['SPORTS_METRICS_PATH'] + "/credentials/gcp_keyfile.json",
+                target="/root/.google/credentials/gcp_keyfile.json",
+                type="bind"
+            ),
+        ],
+        environment={
+            "GOOGLE_APPLICATION_CREDENTIALS": "/root/.google/credentials/gcp_keyfile.json",
+            "GCP_PROJECT_ID": os.environ['GCP_PROJECT_ID'],
+            "GCP_DATASET_ID": os.environ['GCP_DATASET_ID'],
+        },
+        docker_url="tcp://host.docker.internal:2375",
+        auto_remove="success",
+        network_mode="bridge",
+    )
+
+
+    execute_n8n_workflow >> dbt_run >> [ml_injury, ml_clustering]
