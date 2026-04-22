@@ -25,13 +25,13 @@ docker compose up -d
 
 | Outil | Rôle |
 |---|---|
-| **Apache Airflow** | Orchestration — déclenche le pipeline chaque matin à 6h |
-| **n8n** | Ingestion — extrait les Google Sheets et charge dans BigQuery |
-| **Google BigQuery** | Data Warehouse — couches Raw → Staging → Mart |
-| **dbt Core** | Transformation ELT — 10 modèles, PASS=10 |
-| **XGBoost** | ML — prévention des blessures (1623 prédictions/run) |
-| **KMeans** | ML — profilage tactique des joueurs (20 joueurs, k=3) |
-| **Power BI** | Analytics & KPIs — Dashboard Performance 360° |
+| **Apache Airflow** | Orchestration, déclenche le pipeline chaque matin à 6h |
+| **n8n** | Ingestion: extrait les Google Sheets et charge dans BigQuery |
+| **Google BigQuery** | Data Warehouse: couches Raw → Staging → Mart |
+| **dbt Core** | Transformation ELT: 10 modèles, PASS=10 |
+| **XGBoost** | ML: prévention des blessures (1623 prédictions/run) |
+| **KMeans** | ML : profilage tactique des joueurs (20 joueurs, k=3) |
+| **Power BI** | Analytics & KPIs : Dashboard Performance 360° |
 | **Jupyter Lab** | Exploration & développement ML (localhost:8888) |
 | **Slack** | Alertes automatiques sur failure du pipeline |
 | **PostgreSQL** | Base de données interne Airflow |
@@ -53,10 +53,10 @@ Google Sheets → n8n → BigQuery → dbt → ML (XGBoost + KMeans) → Power B
 **Collecte (n8n) :** Workflow automatisé qui extrait les 5 sources CSV depuis Google Sheets et les charge dans BigQuery via webhook. Contrôle d'intégrité (Compare Datasets) pour éviter les doublons.
 
 **Orchestration (Apache Airflow) :** Chaque matin à 6h00, Airflow déclenche séquentiellement :
-1. `execute_n8n_workflow` — appel webhook n8n
-2. `dbt_run` — transformations via DockerOperator
-3. `ml_injury_prevention` — XGBoost en parallèle
-4. `ml_player_clustering` — KMeans en parallèle
+1. `execute_n8n_workflow`  appel webhook n8n
+2. `dbt_run`  transformations via DockerOperator
+3. `ml_injury_prevention`  XGBoost en parallèle
+4. `ml_player_clustering`  KMeans en parallèle
 
 Alertes Slack automatiques sur chaque failure avec `on_failure_callback`. Retries exponentiels (3 tentatives, backoff x2).
 
@@ -64,24 +64,24 @@ Alertes Slack automatiques sur chaque failure avec `on_failure_callback`. Retrie
 
 ## 2. Stockage & Transformation (BigQuery & dbt)
 
-**Data Warehouse :** Stockage centralisé sur **Google BigQuery** — projet `n8n-automation-485809`.
+**Data Warehouse :** Stockage centralisé sur **Google BigQuery** projet `n8n-automation-485809`.
 
-**Transformation dbt — Architecture en Galaxie (Fact Constellation) :**
+**Transformation dbt - Architecture en Galaxie (Fact Constellation) :**
 
-**Couche Staging** — nettoyage technique :
-* `staging_team_players_personal_info` — infos joueurs
-* `staging_team_players_stats` — conversion MM:SS en décimales
-* `staging_team_games_dataset` — parsing dates FR/EN
-* `staging_team_training_sessions` — imputation biométrique par profil
+**Couche Staging** - nettoyage technique :
+* `staging_team_players_personal_info`  infos joueurs
+* `staging_team_players_stats`  conversion MM:SS en décimales
+* `staging_team_games_dataset`  parsing dates FR/EN
+* `staging_team_training_sessions`  imputation biométrique par profil
 
-**Couche Intermediate** — logique métier :
-* `int_fatigue_index_fi` — Fatigue Index pondéré (charge interne 30% + charge externe 40% + récupération 30%). Filtre "Garbage Time" < 5 min.
+**Couche Intermediate** logique métier :
+* `int_fatigue_index_fi`  Fatigue Index pondéré (charge interne 30% + charge externe 40% + récupération 30%). Filtre "Garbage Time" < 5 min.
 
-**Couche Marts** — tables analytiques :
-* `Players_info`, `Calendrier_matchs` — dimensions communes
-* `mart_player` — stats individuelles + score efficience/minute
-* `mart_game` — performance collective par match
-* `mart_physical_condition` — fatigue, ACWR 7j/28j, alertes blessure
+**Couche Marts** tables analytiques :
+* `Players_info`, `Calendrier_matchs` dimensions communes
+* `mart_player`  stats individuelles + score efficience/minute
+* `mart_game` performance collective par match
+* `mart_physical_condition` fatigue, ACWR 7j/28j, alertes blessure
 
 ![Graph DBT](Images/Graph_dbt_Sport_Metrics.png)
 
@@ -93,13 +93,13 @@ Alertes Slack automatiques sur chaque failure avec `on_failure_callback`. Retrie
 
 Les modèles ML tournent automatiquement après dbt via Airflow (DockerOperator). Les résultats sont écrits directement dans BigQuery et consommés par Power BI.
 
-### Prévention des Blessures — XGBoost
+### Prévention des Blessures → XGBoost
 
 **Objectif :** Passer d'une médecine réactive à une prévention proactive.
 
 **Features :** `Fi_before_match`, `fi_avg_7d`, `fi_max_7d`, `training_load_7d`, `fi_avg_28d`, `training_load_28d`, `Focus_Level`, `minutes_played`, `Position`, `ACWR` (ratio charge aiguë/chronique).
 
-**Problématique :** Les blessures représentent seulement 12% des observations — déséquilibre de classes traité avec `scale_pos_weight = nb_sains / nb_blessés`.
+**Problématique :** Les blessures représentent seulement 12% des observations → déséquilibre de classes traité avec `scale_pos_weight = nb_sains / nb_blessés`.
 
 **Règle de gestion graduée :**
 
@@ -107,17 +107,17 @@ Les modèles ML tournent automatiquement après dbt via Airflow (DockerOperator)
 |---|---|
 | ≥ 0.70 | Réduction 80% de l'intensité |
 | ≥ 0.50 | Réduction 50% |
-| ≥ 0.20 | Réduction 15% — alerte préventive |
+| ≥ 0.20 | Réduction 15%, alerte préventive |
 | < 0.20 | Entraînement normal |
 
-Résultats écrits dans `ml_injury_predictions` — **1623 prédictions par run**.
+Résultats écrits dans `ml_injury_predictions`  **1623 prédictions par run**.
 
 ![Métriques XGBoost](Images/Recherche%20du%20seuil%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
 ![Résultats XGBoost](Images/Resultats%20Seuil%20et%20precision%20Blessure%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
 
-### Profilage des Joueurs — KMeans
+### Profilage des Joueurs → KMeans
 
-**Objectif :** Segmenter les joueurs par impact réel sur le terrain plutôt que par poste officiel — saison 2023-2024.
+**Objectif :** Segmenter les joueurs par impact réel sur le terrain plutôt que par poste officiel  (saison 2023-2024).
 
 **Méthodologie :** K-Means avec k=3 déterminé par la méthode du coude, sur 8 variables normalisées (StandardScaler) : points, passes, rebonds, interceptions, contres, pertes de balle, fautes, +/-.
 
@@ -125,14 +125,14 @@ Résultats écrits dans `ml_injury_predictions` — **1623 prédictions par run*
 
 | Profil | Label | Stats clés |
 |---|---|---|
-| 0 | Lieutenant All-Star | 14 pts / 4 passes — créateurs de jeu |
-| 1 | Spécialistes du Banc | 6 pts / +/- de -4,37 — recrues en intégration |
-| 2 | Pivot Dominant | 21 pts / 11 rebonds / 3,47 contres — Vincent Beaumont |
+| 0 | Lieutenant All-Star | 14 pts / 4 passes → créateurs de jeu |
+| 1 | Spécialistes du Banc | 6 pts / +/- de -4,37 → recrues en intégration |
+| 2 | Pivot Dominant | 21 pts / 11 rebonds / 3,47 contres → Vincent Beaumont |
 
 
-**Insight clé :** Lucas Dubois (Profil 0, statut remplaçant) affiche un score de performance de 20,9 en sortie de banc — supérieur à plusieurs titulaires. Candidat idéal au 5 de départ.
+**Insight clé :** Lucas Dubois (Profil 0, statut remplaçant) affiche un score de performance de 20,9 en sortie de banc, supérieur à plusieurs titulaires. Candidat idéal au 5 de départ.
 
-Résultats écrits dans `ml_player_clusters` — **20 joueurs profilés par run**.
+Résultats écrits dans `ml_player_clusters`  **20 joueurs profilés par run**.
 
 ![Courbe Elbow](Images/Recherche_cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
 ![Clusters](Images/Resultats%20recherche%20cluster%20-%20JupyterLab%20-%20%5Blocalhost%5D.png)
@@ -147,7 +147,7 @@ Monitoring dynamique avec mise en forme conditionnelle pilotée par les prédict
 ![Load Management](Images/Load%20management.png)
 
 ### Page 2 : Statistiques & Stratégie
-Corrélation Performance/Fatigue — analyse de la chute de l'adresse lors des pics de fatigue. Facteurs de victoire : comparaison des métriques clés entre matchs gagnés et perdus.
+Corrélation Performance/Fatigue, analyse de la chute de l'adresse lors des pics de fatigue. Facteurs de victoire : comparaison des métriques clés entre matchs gagnés et perdus.
 
 ![Performance Team](Images/Performance%20team.jpg)
 
