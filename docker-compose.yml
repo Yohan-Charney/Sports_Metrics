@@ -33,8 +33,10 @@ services:
       - GCP_PROJECT_ID=${GCP_PROJECT_ID}
       - GCP_DATASET_ID=${GCP_DATASET_ID}
       - SPORTS_METRICS_PATH=${SPORTS_METRICS_PATH}
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/airflow/credentials/gcp_keyfile.json
     volumes:
       - ./Dags:/opt/airflow/dags
+      - ./credentials/gcp_keyfile.json:/opt/airflow/credentials/gcp_keyfile.json
     ports:
       - "8080:8080"
     command: webserver
@@ -51,8 +53,10 @@ services:
       - GCP_PROJECT_ID=${GCP_PROJECT_ID}
       - GCP_DATASET_ID=${GCP_DATASET_ID}
       - SPORTS_METRICS_PATH=${SPORTS_METRICS_PATH}
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/airflow/credentials/gcp_keyfile.json
     volumes:
       - ./Dags:/opt/airflow/dags
+      - ./credentials/gcp_keyfile.json:/opt/airflow/credentials/gcp_keyfile.json
     command: scheduler
        
   n8n:
@@ -69,6 +73,18 @@ services:
 
   dbt:
     image: ghcr.io/dbt-labs/dbt-bigquery:1.8.0
+    volumes:
+      - .:/usr/app
+      - ./credentials/gcp_keyfile.json:/root/.google/credentials/gcp_keyfile.json
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/root/.google/credentials/gcp_keyfile.json
+    working_dir: /usr/app
+    command: run
+    profiles:
+      - dbt
+
+  dbt-snowflake:
+    image: ghcr.io/dbt-labs/dbt-snowflake:1.8.0
     volumes:
       - .:/usr/app
       - ./credentials/gcp_keyfile.json:/root/.google/credentials/gcp_keyfile.json
