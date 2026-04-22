@@ -1,0 +1,49 @@
+name: dbt CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  dbt-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dbt
+        run: pip install dbt-core dbt-bigquery
+
+      - name: Setup GCP credentials
+        run: |
+          echo '${{ secrets.GCP_KEYFILE }}' > /tmp/gcp_keyfile.json
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp_keyfile.json
+
+      - name: Create profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml << EOF
+          sport_metrics:
+            target: dev
+            outputs:
+              dev:
+                type: bigquery
+                method: service-account
+                project: n8n-automation-485809
+                dataset: Sport_Metrics
+                keyfile: /tmp/gcp_keyfile.json
+                threads: 4
+                timeout_seconds: 300
+                location: US
+          EOF
+
+      - name: Run dbt tests
+        run: dbt test --project-dir . --profiles-dir ~/.dbt
