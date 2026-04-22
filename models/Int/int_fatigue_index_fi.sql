@@ -99,7 +99,7 @@ fatigue_index_fi as (
         cast(case 
             when n.Recovery_Time_hours > n.days_before_match * 24 then (n.Recovery_Time_hours - n.days_before_match * 24)
             else 0
-        end as int64) as Recovery_needed_hours -- indique le besoin supplémentaire en récuperation d'ici le prochain match
+        end as {{ 'int64' if target.type == 'bigquery' else 'integer' }}) as Recovery_needed_hours -- indique le besoin supplémentaire en récuperation d'ici le prochain match
 
     from fatigue_calc f
     join normalisation n using(player_id, session_id) 

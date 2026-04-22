@@ -38,20 +38,20 @@ fatigue_stats as (
 -- accumulation fatigue sur 7 jour
         round(avg(fatigue_index_score) over(
             partition by fi.player_id
-            order by unix_date(fi.session_date)
+            order by {{ date_to_int('fi.session_date') }}
             range between 7 preceding and current row
         ),2) as fi_avg_7d,
 
         max(fatigue_index_score) over(
             partition by fi.player_id
-            order by unix_date(fi.session_date)
+            order by {{ date_to_int('fi.session_date') }}
             range between 7 preceding and current row
         ) as fi_max_7d,
 
 
         sum(sts.Duration_min * sts.Load_Intensity_Score) over(
             partition by fi.player_id
-            order by unix_date(fi.session_date)
+            order by {{ date_to_int('fi.session_date') }}
             range between 7 preceding and current row
         ) as training_load_7d,
 
@@ -59,20 +59,20 @@ fatigue_stats as (
 
         round(avg(fatigue_index_score) over(
             partition by fi.player_id
-            order by unix_date(fi.session_date)
+            order by {{ date_to_int('fi.session_date') }}
             range between 28 preceding and current row
         ),2) as fi_avg_28d,
 
         max(fatigue_index_score) over(
             partition by fi.player_id
-            order by unix_date(fi.session_date)
+            order by {{ date_to_int('fi.session_date') }}
             range between 28 preceding and current row
         ) as fi_max_28d,
 
 
         sum(sts.Duration_min * sts.Load_Intensity_Score) over(
             partition by fi.player_id
-            order by unix_date(fi.session_date)
+            order by {{ date_to_int('fi.session_date') }}
             range between 28 preceding and current row
         ) as training_load_28d
 

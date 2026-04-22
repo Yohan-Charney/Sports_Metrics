@@ -2,8 +2,8 @@ version: 2
 
 sources:
   - name: Sports_Metrics
-    database: n8n-automation-485809
-    schema: Sport_Metrics
+    database: "{% if target.type == 'snowflake' %}SPORT_METRICS{% else %}n8n-automation-485809{% endif %}"
+    schema: "{% if target.type == 'snowflake' %}RAW{% else %}Sport_Metrics{% endif %}"
     tables:
       - name: team_boxscores
       - name: team_games_dataset

@@ -20,19 +20,15 @@ game_data as (
 
 select
 																			
-    s.Game_id as game_id,
-    coalesce( SAFE.PARSE_DATE('%b %d, %Y', replace(replace(replace(trim(GAME_DATE), 'oct.', 'Oct'),'nov.', 'Nov'),'déc.', 'Dec')),
-                  SAFE.PARSE_DATE('%b %d, %Y', replace(replace(replace(trim(GAME_DATE), 'janv.', 'Jan'),'févr.', 'Feb'),'avr.', 'Apr')),
-                  SAFE.PARSE_DATE('%b %d, %Y', replace(replace(replace(trim(GAME_DATE), 'mai', 'May'),'juin', 'Jun' ),'juil.', 'Jul')),
-                  SAFE.PARSE_DATE('%b %d, %Y', replace(replace(replace(trim(GAME_DATE), 'août', 'Aug'),'sept.', 'Sep'),'mars', 'Mar'))
-        ) as game_date,
+    s."Game_ID" as game_id,
+    {{ parse_date_fr('GAME_DATE') }} as game_date,
     Matchup,
     WL as Win_Loss,
     W as Win,
     L as Loss,
     W_PCT Win_pct,
     s.MIN as Total_minutes,
-    safe_cast(s.PTS as int64) as Total_points,
+    {{ safe_cast('s.PTS', 'int64') }} as Total_points,
     s.FGM as Total_Field_goal_made,
     s.FGA as Total_Field_goal_attempt,
     s.FG_PCT,
@@ -50,11 +46,11 @@ select
     s.BLK as Total_Blocks,
     s.TOV as Total_Turnover,
     s.PF as Total_Player_fault,
-    safe_cast(d.PLUS_MINUS as int64) as Ecart
+    {{ safe_cast('d.PLUS_MINUS', 'int64') }} as Ecart
     
 
 from sources s
-join donnees d on d.GAME_ID = s.Game_id
+join donnees d on d.GAME_ID = s."Game_ID"
 )
 
 select * from game_data

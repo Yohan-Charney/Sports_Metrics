@@ -81,7 +81,7 @@ games as (
 games_dedup as (
     select *
     from games
-    qualify row_number() over(partition by game_id) = 1
+    qualify row_number() over(partition by game_id order by game_id) = 1
 )
 
 select * from games_dedup
