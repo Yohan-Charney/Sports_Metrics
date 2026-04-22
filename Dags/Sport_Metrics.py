@@ -81,6 +81,21 @@ with DAG(
         network_mode="bridge",
     )
 
+    dbt_snapshot = DockerOperator(
+        task_id="dbt_snapshot",
+        image="ghcr.io/dbt-labs/dbt-bigquery:1.8.0",
+        command="snapshot --profiles-dir /usr/app --project-dir /usr/app",
+        working_dir="/usr/app",
+        mounts=[
+            Mount(source=os.environ['SPORTS_METRICS_PATH'], target="/usr/app", type="bind"),
+            Mount(source=f"{os.environ['SPORTS_METRICS_PATH']}/credentials/gcp_keyfile.json", target="/root/.google/credentials/gcp_keyfile.json", type="bind"),
+        ],
+        environment={"GOOGLE_APPLICATION_CREDENTIALS": "/root/.google/credentials/gcp_keyfile.json"},
+        docker_url="tcp://host.docker.internal:2375",
+        auto_remove="success",
+        network_mode="bridge",
+    )
+
     ml_injury = DockerOperator(
         task_id="ml_injury_prevention",
         image="python:3.11-slim",
@@ -136,4 +151,4 @@ with DAG(
     )
 
 
-    execute_n8n_workflow >> dbt_run >> [ml_injury, ml_clustering]
+    execute_n8n_workflow >> dbt_run >> dbt_snapshot >> [ml_injury, ml_clustering]
