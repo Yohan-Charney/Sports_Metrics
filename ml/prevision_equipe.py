@@ -27,10 +27,11 @@ logger.info("Chargement des données depuis BigQuery...")
 
 query = f"""
     SELECT
+        Season,
         player_id,
         player_name,
-        Position,
-        Start_position,
+        MAX(Position) as Position,
+        MAX(Start_position) as Start_position,
         AVG(Points) as Points,
         AVG(Assists) as Assists,
         AVG(Total_rebounds) as Total_rebounds,
@@ -44,7 +45,7 @@ query = f"""
         round(AVG(minutes_played),2) as minutes_played
     FROM `{PROJECT_ID}.{DATASET_ID}.mart_player`
     WHERE minutes_played >= 5 AND Season = '2023-2024'
-    GROUP BY Season, player_id, player_name, Position, Start_position
+    GROUP BY Season, player_id, player_name
 """
 
 df = client.query(query).to_dataframe()
