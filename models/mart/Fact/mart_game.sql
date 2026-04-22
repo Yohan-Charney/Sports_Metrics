@@ -1,6 +1,6 @@
 {{ config(
-    materialized='table',
-
+    materialized='incremental',
+    unique_key='game_id'
 ) }}
 
 with stg as (
@@ -76,8 +76,12 @@ games as (
     -- Jointure avec la fatigue collective calculée plus haut
     join Fi_equipe f on f.Next_Match_ID = stg.game_id
 
+),
+
+games_dedup as (
+    select *
+    from games
+    qualify row_number() over(partition by game_id) = 1
 )
 
-select * 
-from games
-qualify row_number() over(partition by game_id) = 1 -- Gestion des doublons sur game_id
+select * from games_dedup

@@ -1,6 +1,6 @@
 {{ config(
-    materialized='table',
-
+    materialized='incremental',
+    unique_key=['game_id', 'player_id']
 ) }}
 
 with 
@@ -79,12 +79,14 @@ select
 
     -- CALCUL DU SCORE DE PERFORMANCE (EFFICIENCE) :
     -- Formule : (Pts + Reb + Ast + Stl + Blk) - (Balles perdues + Fautes)
-    (Points + tps.Total_rebounds + tps.Assists + tps.Steals + tps.Blocks - tps.Turnover - tps.Player_fault)
+    {{ performance_score('Points', 'tps.Total_rebounds', 'tps.Assists', 'tps.Steals', 'tps.Blocks', 'tps.Turnover', 'tps.Player_fault') }}
     as Performance_score_match,
 
     -- Score de performance ramené à la minute (très important pour comparer les remplaçants et les titulaires)
-    round((Points + tps.Total_rebounds + tps.Assists + tps.Steals + tps.Blocks - tps.Turnover - tps.Player_fault)/NULLIF(minutes_played, 0),2) -- Sécurité pour le score par minute
-    as Performance_score_match_min,
+    round(
+    {{ performance_score('Points', 'tps.Total_rebounds', 'tps.Assists', 'tps.Steals', 'tps.Blocks', 'tps.Turnover', 'tps.Player_fault') }}
+    / NULLIF(minutes_played, 0), 2
+    ) as Performance_score_match_min,
 
     tps.Plus_minus
 
