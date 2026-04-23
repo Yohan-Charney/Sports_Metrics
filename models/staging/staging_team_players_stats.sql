@@ -45,7 +45,11 @@ nettoyage as (
         {{ safe_cast('AST', 'int64') }} as Assists,
         {{ safe_cast('STL', 'int64') }} as Steals,
         {{ safe_cast('BLK', 'int64') }} as Blocks,
-        {{ safe_cast('"TO"', 'int64') }} as Turnover,
+        {% if target.type == 'snowflake' %}
+             "TO"::integer as Turnover,
+        {% else %}
+            {{ safe_cast('`TO`', 'int64') }} as Turnover,
+        {% endif %}
         {{ safe_cast('PF', 'int64') }} as Player_fault,
 
         {{ safe_cast('PLUS_MINUS', 'float64') }} as Plus_minus
