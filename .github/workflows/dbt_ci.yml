@@ -44,6 +44,8 @@ jobs:
                 timeout_seconds: 300
                 location: US
           EOF
+      - name: Run dbt models
+        run: dbt run --project-dir . --profiles-dir ~/.dbt
 
       - name: Run dbt tests
         run: dbt test --project-dir . --profiles-dir ~/.dbt
