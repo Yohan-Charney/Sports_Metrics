@@ -20,7 +20,7 @@ game_data as (
 
 select
 																			
-    s."Game_ID" as game_id,
+    {% if target.type == 'snowflake' %}s.GAME_ID{% else %}s.Game_id{% endif %} as game_id,
     {{ parse_date_fr('GAME_DATE') }} as game_date,
     Matchup,
     WL as Win_Loss,
@@ -50,7 +50,7 @@ select
     
 
 from sources s
-join donnees d on d.GAME_ID = s."Game_ID"
+join donnees d on d.GAME_ID = {% if target.type == 'snowflake' %}s.GAME_ID{% else %}s.Game_id{% endif %}
 )
 
 select * from game_data

@@ -2,6 +2,7 @@
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
+
 name: 'sport_metrics'
 version: '1.0.0'
 config-version: 2
@@ -12,6 +13,7 @@ profile: 'sport_metrics'
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
+
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
@@ -37,6 +39,12 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   sport_metrics:
-    # Applies to all files under models/example/
-    example:
-      +materialized: table
+    staging:
+      +schema: staging
+    Int:
+      +schema: intermediate
+    mart:
+      Dim:
+        +schema: mart
+      Fact:
+        +schema: mart

@@ -37,6 +37,7 @@ for table in TABLES:
         f"SELECT * FROM `{PROJECT_ID}.{DATASET_ID}.{table}`"
     ).to_dataframe()
     logger.info(f"{len(df)} lignes lues depuis BigQuery")
+    df.columns = df.columns.str.upper() 
     success, nchunks, nrows, _ = write_pandas(
         sf_conn, df, table.upper(),
         auto_create_table=True,

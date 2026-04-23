@@ -32,7 +32,7 @@
 
 {% macro date_to_int(field) %}
     {% if target.type == 'bigquery' %}
-        unix_date({{ field }})
+   	unix_date(date({{ field }}))
     {% elif target.type == 'snowflake' %}
         datediff('day', '1970-01-01'::date, {{ field }})
     {% endif %}
